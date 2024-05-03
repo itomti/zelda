@@ -6,6 +6,7 @@ from game.sprite.tile import Tile
 from game.sprite.player import Player
 from game.sprite.camera import YSortCameraGroup
 from game.sprite.weapon import Weapon
+from game.ui import UserInterface
 from random import choice
 
 class Level:
@@ -16,10 +17,12 @@ class Level:
         self.obstacle_sprites = pygame.sprite.Group()
         self.weapon_data = import_weapon_data()
         self.create_map()
+        self.ui = UserInterface()
 
     def run(self):
         self.visible_sprites.draw(self.player)
         self.visible_sprites.update()
+        self.ui.display(self.player.rect)
 
     def create_map(self):
         layouts = {

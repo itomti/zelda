@@ -12,11 +12,10 @@ class WeaponType(Enum):
 
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, groups, cooldown: int, damage: int, weapon_type: str, weapon_data: dict):
+    def __init__(self, groups, weapon_data: dict):
         super().__init__(groups)
-        self.cooldown = cooldown
-        self.damage = damage
-        self.weapon_type = weapon_type
+        self.cooldown = weapon_data['cooldown']
+        self.damage = weapon_data['damage']
         self.weapon_data = weapon_data
         self.rect = None
         self.image = None

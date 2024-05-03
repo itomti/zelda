@@ -27,16 +27,19 @@ class PlayerAnimationType(Enum):
 class Player(pygame.sprite.Sprite):
     def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, weapon: Weapon):
         super().__init__(groups)
+        # sprites
         self.visible_sprites = groups
         self.image = pygame.image.load("assets/graphics/test/player.png").convert_alpha()
-        self.weapon_data = import_weapon_data()
         self.animations = {}
         self.import_player_assets()
+
+        # rects
         self.rect = self.image.get_rect(topleft=position)
         self.direction = pygame.math.Vector2()
-        self.speed = 5
         self.obstacle_sprites = obstacle_sprites
         self.hit_box = self.rect.inflate(0, -26)
+
+        # animation info
         self.is_attacking = False
         self.is_cycling = False
         self.attack_cooldown = 400
@@ -45,8 +48,18 @@ class Player(pygame.sprite.Sprite):
         self.status: str = 'down'
         self.frame_index: float = 0
         self.animation_speed: float = 0.15
-        self.current_weapon_name = 'sword'
+
+        # weapon
+        self.weapon_data = import_weapon_data()
+        self.current_weapon_name = 'axe'
         self.weapon = weapon
+
+        # stats
+        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.speed = self.stats['speed']
+        self.experience = 123
 
     def import_player_assets(self):
         character_path = 'assets/graphics/player'
@@ -123,9 +136,6 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         self.weapon = Weapon(self.visible_sprites,
-                             self.weapon_data[self.current_weapon_name]['cooldown'],
-                             self.weapon_data[self.current_weapon_name]['damage'],
-                             self.current_weapon_name,
                              self.weapon_data[self.current_weapon_name])
         self.weapon.create_weapon(self.rect, self.status.split('_')[0])
 
