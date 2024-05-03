@@ -1,9 +1,9 @@
 import pygame
 
 # game setup
-WIDTH    = 1280
-HEIGTH   = 720
-FPS      = 60
+WIDTH = 1280
+HEIGTH = 720
+FPS = 60
 TILESIZE = 64
 
 # User interface
@@ -18,7 +18,7 @@ UI_FONT_SIZE = 18
 WATER_COLOR = '#71ddee'
 UI_BG_COLOR = '#222222'
 UI_BORDER_COLOR = '#111111'
-TEXT_COLOR = '#EEEEE'
+TEXT_COLOR = '#EEEEEE'
 
 # ui colors
 HEALTH_COLOR = 'red'

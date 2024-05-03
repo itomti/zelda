@@ -136,6 +136,7 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         self.weapon = Weapon(self.visible_sprites,
+                             self.current_weapon_name,
                              self.weapon_data[self.current_weapon_name])
         self.weapon.create_weapon(self.rect, self.status.split('_')[0])
 
