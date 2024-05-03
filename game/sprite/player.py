@@ -2,7 +2,7 @@ import pygame
 from enum import Enum
 import game.utils
 from game.settings import *
-from game.sprite.weapon import Weapon
+from game.sprite.weapon import Weapon, WeaponType
 
 class DirectionType(Enum):
     HORIZONTAL = 1,
@@ -38,8 +38,10 @@ class Player(pygame.sprite.Sprite):
         self.obstacle_sprites = obstacle_sprites
         self.hit_box = self.rect.inflate(0, -26)
         self.is_attacking = False
+        self.is_cycling = False
         self.attack_cooldown = 400
         self.attack_time = None
+        self.cycling_time = None
         self.status: str = 'down'
         self.frame_index: float = 0
         self.animation_speed: float = 0.15
@@ -98,6 +100,27 @@ class Player(pygame.sprite.Sprite):
             self.is_attacking = True
             self.attack_time = pygame.time.get_ticks()
 
+        if keys[pygame.K_1] and not self.is_cycling:
+            self.current_weapon_name = 'axe'
+            self.is_cycling = True
+            self.cycling_time = pygame.time.get_ticks()
+        elif keys[pygame.K_2] and not self.is_cycling:
+            self.current_weapon_name = 'lance'
+            self.is_cycling = True
+            self.cycling_time = pygame.time.get_ticks()
+        elif keys[pygame.K_3] and not self.is_cycling:
+            self.current_weapon_name = 'rapier'
+            self.is_cycling = True
+            self.cycling_time = pygame.time.get_ticks()
+        elif keys[pygame.K_4] and not self.is_cycling:
+            self.current_weapon_name = 'sai'
+            self.is_cycling = True
+            self.cycling_time = pygame.time.get_ticks()
+        elif keys[pygame.K_5] and not self.is_cycling:
+            self.current_weapon_name = 'sword'
+            self.is_cycling = True
+            self.cycling_time = pygame.time.get_ticks()
+
     def attack(self):
         self.weapon = Weapon(self.visible_sprites,
                              self.weapon_data[self.current_weapon_name]['cooldown'],
@@ -136,6 +159,7 @@ class Player(pygame.sprite.Sprite):
     def update(self) -> None:
         self.input()
         self.reset_is_attacking()
+        self.reset_is_cycling()
         self.set_status()
         self.animate()
         self.move()
@@ -165,10 +189,18 @@ class Player(pygame.sprite.Sprite):
             self.status = self.status.replace('_attack', '')
 
     def reset_is_attacking(self) -> None:
-        current_time = pygame.time.get_ticks()
-
         if not self.is_attacking:
             return
 
+        current_time = pygame.time.get_ticks()
         if current_time - self.attack_time >= self.attack_cooldown:
             self.is_attacking = False
+            self.weapon.destroy()
+
+    def reset_is_cycling(self) -> None:
+        if not self.is_cycling:
+            return
+
+        current_time = pygame.time.get_ticks()
+        if current_time - self.cycling_time >= 200:
+            self.is_cycling = False

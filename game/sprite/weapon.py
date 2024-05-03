@@ -1,5 +1,14 @@
 import pygame
 import game.settings
+from enum import Enum
+
+
+class WeaponType(Enum):
+    SWORD = 0,
+    SAI = 1,
+    RAPIER = 2,
+    LANCE = 3,
+    AXE = 4
 
 
 class Weapon(pygame.sprite.Sprite):
@@ -24,3 +33,6 @@ class Weapon(pygame.sprite.Sprite):
             self.rect: pygame.rect.Rect = self.image.get_rect(midbottom=player_rect.midtop + pygame.math.Vector2(16, 0))
         else:
             self.rect: pygame.rect.Rect = self.image.get_rect(center=player_rect.center)
+
+    def destroy(self):
+        self.kill()
