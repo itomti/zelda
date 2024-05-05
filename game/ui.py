@@ -3,7 +3,7 @@ from game.sprite.player import Player
 
 class UserInterfaceSettings:
     def __init__(self, font_path, font_size, bar_height, health_bar_width, energy_bar_width, health_color,
-                 energy_color, background_color, water_color, border_color, text_color, item_box_size):
+                 energy_color, background_color, water_color, border_color, text_color, item_box_size, border_color_active):
         self.font_path = font_path
         self.font_size = font_size
         self.bar_height = bar_height
@@ -16,6 +16,7 @@ class UserInterfaceSettings:
         self.border_color = border_color
         self.text_color = text_color
         self.item_box_size = item_box_size
+        self.border_color_active = border_color_active
 
 class UserInterface:
     def __init__(self, display_surface, ui_settings: UserInterfaceSettings):
@@ -53,7 +54,10 @@ class UserInterface:
     def selection_box(self, left, top, player: Player) -> pygame.rect.Rect:
         bg_rect = pygame.Rect(left, top, self.ui_settings.item_box_size, self.ui_settings.item_box_size)
         pygame.draw.rect(self.display_surface, self.ui_settings.background_color, bg_rect)
-        pygame.draw.rect(self.display_surface, self.ui_settings.border_color, bg_rect, 3)
+        if player.is_cycling:
+            pygame.draw.rect(self.display_surface, self.ui_settings.border_color_active, bg_rect, 3)
+        else:
+            pygame.draw.rect(self.display_surface, self.ui_settings.border_color, bg_rect, 3)
         return bg_rect
 
     def weapon_overlay(self, player: Player) -> None:

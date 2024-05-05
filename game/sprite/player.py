@@ -61,6 +61,9 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.stats['speed']
         self.experience = 123
 
+        # magic
+        self.magic_data = import_magic_data()
+
     def import_player_assets(self):
         character_path = 'assets/graphics/player'
         self.animations = {

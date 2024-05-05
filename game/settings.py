@@ -107,5 +107,13 @@ def import_weapon_data():
             }
         }
     }
-
     return weapon_data
+
+
+def import_magic_data() -> dict:
+    magic_data = {
+        'flame': {'strength': 5, 'cost': 20, 'graphic': pygame.image.load('assets/graphics/particles/flame/fire.png')},
+        'heal': {'strength': 20, 'cost': 10, 'graphic': pygame.image.load('assets/graphics/particles/heal/heal.png')}
+    }
+
+    return magic_data

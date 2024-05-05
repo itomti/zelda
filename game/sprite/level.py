@@ -16,6 +16,7 @@ class Level:
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
         self.weapon_data = import_weapon_data()
+        self.magic_data = import_magic_data()
         self.create_map()
         self.ui = None
         self.ui_settings = None
@@ -25,7 +26,7 @@ class Level:
         self.visible_sprites.update()
         self.ui_settings = UserInterfaceSettings(UI_FONT_PATH, UI_FONT_SIZE, BAR_HEIGHT, HEALTH_BAR_WIDTH,
                                                  ENERGY_BAR_WIDTH, HEALTH_COLOR, ENERGY_COLOR, UI_BG_COLOR,
-                                                 WATER_COLOR, UI_BORDER_COLOR, TEXT_COLOR, ITEM_BOX_SIZE)
+                                                 WATER_COLOR, UI_BORDER_COLOR, TEXT_COLOR, ITEM_BOX_SIZE, UI_BORDER_COLOR_ACTIVE)
         self.ui = UserInterface(self.display_surface, self.ui_settings)
         self.ui.display(self.player)
 
