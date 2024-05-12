@@ -1,28 +1,17 @@
 import pygame
-import game.settings
-from enum import Enum
 
-
-class WeaponType(Enum):
-    SWORD = 0,
-    SAI = 1,
-    RAPIER = 2,
-    LANCE = 3,
-    AXE = 4
-
-
-class Weapon(pygame.sprite.Sprite):
-    def __init__(self, groups, weapon_data: dict):
+class Spell(pygame.sprite.Sprite):
+    def __init__(self, groups, spell_data: dict):
         super().__init__(groups)
-        self.weapon_data = weapon_data
-        self.cooldown = weapon_data['cooldown']
-        self.damage = weapon_data['damage']
-        self.name = self.weapon_data['name']
-        self.image: None
+        self.spell_data = spell_data
+        self.name = self.spell_data['name']
+        self.strength = self.spell_data['strength']
+        self.cost = self.spell_data['cost']
+        self.image = None
         self.rect = None
 
-    def create_weapon(self, player_rect: pygame.rect.Rect, direction: str) -> None:
-        self.image: pygame.surface.Surface = self.weapon_data['direction_surfaces'][direction]
+    def create(self, player_rect: pygame.rect.Rect, direction: str):
+        self.image: pygame.surface.Surface = self.spell_data['graphic']
         if direction == 'right':
             self.rect: pygame.rect.Rect = self.image.get_rect(midleft=player_rect.midright + pygame.math.Vector2(0, 16))
         elif direction == 'left':

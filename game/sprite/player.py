@@ -3,6 +3,7 @@ from enum import Enum
 import game.utils
 from game.settings import *
 from game.sprite.weapon import Weapon, WeaponType
+from game.sprite.spell import Spell
 
 class DirectionType(Enum):
     HORIZONTAL = 1,
@@ -25,7 +26,7 @@ class PlayerAnimationType(Enum):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, weapon: Weapon):
+    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group):
         super().__init__(groups)
         # sprites
         self.visible_sprites = groups
@@ -50,9 +51,10 @@ class Player(pygame.sprite.Sprite):
         self.animation_speed: float = 0.15
 
         # weapon
+        self.weapon_index = 0
         self.weapon_data = import_weapon_data()
-        self.current_weapon_name = 'axe'
-        self.weapon = weapon
+        #self.weapon = Weapon(self.visible_sprites, self.weapon_data[self.weapon_index])
+        self.weapon = None
 
         # stats
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
@@ -62,7 +64,9 @@ class Player(pygame.sprite.Sprite):
         self.experience = 123
 
         # magic
-        self.magic_data = import_magic_data()
+        self.spell_index = 0
+        self.spell_data = import_magic_data()
+        self.spell = None
 
     def import_player_assets(self):
         character_path = 'assets/graphics/player'
@@ -115,33 +119,30 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_LCTRL] and not self.is_attacking:
             self.is_attacking = True
             self.attack_time = pygame.time.get_ticks()
+            self.shoot()
 
-        if keys[pygame.K_1] and not self.is_cycling:
-            self.current_weapon_name = 'axe'
+        if keys[pygame.K_q] and not self.is_cycling:
             self.is_cycling = True
             self.cycling_time = pygame.time.get_ticks()
-        elif keys[pygame.K_2] and not self.is_cycling:
-            self.current_weapon_name = 'lance'
+            self.weapon_index += 1
+            if self.weapon_index >= len(self.weapon_data):
+                self.weapon_index = 0
+
+        if keys[pygame.K_e] and not self.is_cycling:
             self.is_cycling = True
             self.cycling_time = pygame.time.get_ticks()
-        elif keys[pygame.K_3] and not self.is_cycling:
-            self.current_weapon_name = 'rapier'
-            self.is_cycling = True
-            self.cycling_time = pygame.time.get_ticks()
-        elif keys[pygame.K_4] and not self.is_cycling:
-            self.current_weapon_name = 'sai'
-            self.is_cycling = True
-            self.cycling_time = pygame.time.get_ticks()
-        elif keys[pygame.K_5] and not self.is_cycling:
-            self.current_weapon_name = 'sword'
-            self.is_cycling = True
-            self.cycling_time = pygame.time.get_ticks()
+            self.spell_index += 1
+            if self.spell_index >= len(self.spell_data):
+                self.spell_index = 0
 
     def attack(self):
         self.weapon = Weapon(self.visible_sprites,
-                             self.current_weapon_name,
-                             self.weapon_data[self.current_weapon_name])
+                             self.weapon_data[self.weapon_index])
         self.weapon.create_weapon(self.rect, self.status.split('_')[0])
+
+    def shoot(self):
+        self.spell = Spell(self.visible_sprites, self.spell_data[self.spell_index])
+        self.spell.create(self.rect, self.status.split('_')[0])
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:
@@ -209,7 +210,8 @@ class Player(pygame.sprite.Sprite):
         current_time = pygame.time.get_ticks()
         if current_time - self.attack_time >= self.attack_cooldown:
             self.is_attacking = False
-            self.weapon.destroy()
+            if self.weapon is not None: self.weapon.destroy()
+            if self.spell is not None: self.spell.destroy()
 
     def reset_is_cycling(self) -> None:
         if not self.is_cycling:

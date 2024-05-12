@@ -56,4 +56,4 @@ class Level:
                         object_surface = graphics['objects'][int(column)]
                         Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', object_surface)
 
-        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, None)
+        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites)

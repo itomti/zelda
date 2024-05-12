@@ -50,8 +50,9 @@ WORLD_MAP = [
 
 
 def import_weapon_data():
-    weapon_data = {
-        'axe': {
+    weapon_data = [
+        {
+            'name': 'axe',
             'cooldown': 300,
             'damage': 20,
             'direction_surfaces': {
@@ -62,7 +63,8 @@ def import_weapon_data():
                 'full': pygame.image.load('assets/weapons/axe/full.png').convert_alpha()
             }
         },
-        'lance': {
+        {
+            'name': 'lance',
             'cooldown': 400,
             'damage': 30,
             'direction_surfaces': {
@@ -73,7 +75,8 @@ def import_weapon_data():
                 'full': pygame.image.load('assets/weapons/lance/full.png').convert_alpha()
             }
         },
-        'rapier': {
+        {
+            'name': 'rapier',
             'cooldown': 300,
             'damage': 20,
             'direction_surfaces': {
@@ -84,7 +87,8 @@ def import_weapon_data():
                 'full': pygame.image.load('assets/weapons/rapier/full.png').convert_alpha()
             }
         },
-        'sai': {
+        {
+            'name': 'sai',
             'cooldown': 80,
             'damage': 10,
             'direction_surfaces': {
@@ -95,7 +99,8 @@ def import_weapon_data():
                 'full': pygame.image.load('assets/weapons/sai/full.png').convert_alpha()
             }
         },
-        'sword': {
+        {
+            'name': 'sword',
             'cooldown': 100,
             'damage': 15,
             'direction_surfaces': {
@@ -105,15 +110,14 @@ def import_weapon_data():
                 'down': pygame.image.load('assets/weapons/sword/down.png').convert_alpha(),
                 'full': pygame.image.load('assets/weapons/sword/full.png').convert_alpha()
             }
-        }
-    }
+        }]
     return weapon_data
 
 
 def import_magic_data() -> dict:
-    magic_data = {
-        'flame': {'strength': 5, 'cost': 20, 'graphic': pygame.image.load('assets/graphics/particles/flame/fire.png')},
-        'heal': {'strength': 20, 'cost': 10, 'graphic': pygame.image.load('assets/graphics/particles/heal/heal.png')}
-    }
+    magic_data = [
+    {'name': 'flame', 'strength': 5, 'cost': 20, 'graphic': pygame.image.load('assets/graphics/particles/flame/fire.png').convert_alpha()},
+    {'name': 'heal', 'strength': 20, 'cost': 10, 'graphic': pygame.image.load('assets/graphics/particles/heal/heal.png').convert_alpha()}
+    ]
 
     return magic_data
