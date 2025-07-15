@@ -1,2 +1,8 @@
 venv/*
 .idea/*
+
+game/__pycache__
+game/sprite/__pycache__
+gcm-diagnose.log
+uv.lock
+.python-version
