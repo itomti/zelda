@@ -1,6 +1,8 @@
 venv/*
 .idea/*
 
+src/zelda.egg-info/
+src/zelda/ui/__pycache__/
 src/zelda/__pycache__/*
 src/zelda/sprite/__pycache__/*
 gcm-diagnose.log
