@@ -1,5 +1,5 @@
 import pygame
-from game.sprite.player import Player
+from zelda.sprite.player import Player
 
 class UserInterfaceSettings:
     def __init__(self, font_path, font_size, bar_height, health_bar_width, energy_bar_width, health_color,
@@ -62,7 +62,7 @@ class UserInterface:
 
     def weapon_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(10, 600, player)
-        weapon_surface: pygame.surface.Surface = player.weapon_data[player.weapon_index]['direction_surfaces']['full']
+        weapon_surface: pygame.surface.Surface = player.weapon_data[player.weapon_index].direction_surfaces['full']
         weapon_rect = weapon_surface.get_rect(center=bg_rect.center)
         self.display_surface.blit(weapon_surface, weapon_rect)
 

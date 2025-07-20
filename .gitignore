@@ -1,8 +1,8 @@
 venv/*
 .idea/*
 
-game/__pycache__
-game/sprite/__pycache__
+src/zelda/__pycache__/*
+src/zelda/sprite/__pycache__/*
 gcm-diagnose.log
 uv.lock
 .python-version

@@ -1,5 +1,4 @@
-import pygame
-from game.settings import *
+from zelda.settings import *
 
 
 class Tile(pygame.sprite.Sprite):

@@ -1,9 +1,9 @@
+import logging
 import pygame
 from enum import Enum
-import game.utils
-from game.settings import *
-from game.sprite.weapon import Weapon, WeaponType
-from game.sprite.spell import Spell
+from zelda.settings import *
+from zelda.sprite.spell import Spell
+from zelda.utils import Utilities
 
 class DirectionType(Enum):
     HORIZONTAL = 1,
@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
 
         # weapon
         self.weapon_index = 0
-        self.weapon_data = import_weapon_data()
+        self.weapon_data = import_weapon_data(self.visible_sprites)
         #self.weapon = Weapon(self.visible_sprites, self.weapon_data[self.weapon_index])
         self.weapon = None
 
@@ -86,7 +86,7 @@ class Player(pygame.sprite.Sprite):
         }
         for animation in self.animations.keys():
             folder_path: str = f"{character_path}/{animation}"
-            surfaces = game.utils.Utilities.import_folder(folder_path)
+            surfaces = Utilities.import_folder(folder_path)
             self.animations[animation] = surfaces
 
     def input(self) -> None:
@@ -136,9 +136,10 @@ class Player(pygame.sprite.Sprite):
                 self.spell_index = 0
 
     def attack(self):
-        self.weapon = Weapon(self.visible_sprites,
-                             self.weapon_data[self.weapon_index])
-        self.weapon.create_weapon(self.rect, self.status.split('_')[0])
+        #self.weapon = Weapon(self.visible_sprites,
+        # self.weapon_data[self.weapon_index])
+        self.weapon = self.weapon_data[self.weapon_index]
+        self.weapon.create_weapon(pygame.display.get_surface(), self.rect, self.status.split('_')[0])
 
     def shoot(self):
         self.spell = Spell(self.visible_sprites, self.spell_data[self.spell_index])

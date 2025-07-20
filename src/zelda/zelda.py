@@ -1,7 +1,10 @@
 import pygame
 import sys
-from game.settings import *
-from game.sprite.level import Level
+import logging
+import logging.config
+import json
+from zelda.settings import *
+from zelda.sprite.level import Level
 
 
 class Game:
@@ -13,6 +16,7 @@ class Game:
         self.level = Level()
 
     def run(self):
+        logging.info("starting game loop")
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -23,3 +27,15 @@ class Game:
             self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
+
+def main():
+    setup_logger()
+    game = Game()
+    game.run()
+
+def setup_logger():
+    with open("logger.json", "r") as f:
+        logging.config.dictConfig(json.load(f))
+
+if __name__ == '__main__':
+    main()
