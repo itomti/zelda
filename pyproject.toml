@@ -2,7 +2,8 @@
 name = "zelda"
 version = "0.1"
 dependencies = [
-             'pygame>=2.6.1'
+             'pygame>=2.6.1',
+             'pydantic'
 ]
 
 [project.scripts]
