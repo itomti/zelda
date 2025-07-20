@@ -15,7 +15,7 @@ class Level:
         self.visible_sprites: pygame.sprite.Group = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
         self.weapon_data = import_weapon_data(self.visible_sprites)
-        self.magic_data = import_magic_data()
+        self.magic_data = import_magic_data(self.visible_sprites)
         self.create_map()
         self.ui = None
         self.ui_settings = None

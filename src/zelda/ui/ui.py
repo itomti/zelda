@@ -68,7 +68,7 @@ class UserInterface:
 
     def magic_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(80, 635, player)
-        spell_surface: pygame.surface.Surface = player.spell_data[player.spell_index]['graphic']
+        spell_surface: pygame.surface.Surface = player.spell_data[player.spell_index].direction_surfaces['graphic']
         spell_rect = spell_surface.get_rect(center=bg_rect.center)
         self.display_surface.blit(spell_surface, spell_rect)
 

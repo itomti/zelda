@@ -53,7 +53,6 @@ class Player(pygame.sprite.Sprite):
         # weapon
         self.weapon_index = 0
         self.weapon_data = import_weapon_data(self.visible_sprites)
-        #self.weapon = Weapon(self.visible_sprites, self.weapon_data[self.weapon_index])
         self.weapon = None
 
         # stats
@@ -65,7 +64,7 @@ class Player(pygame.sprite.Sprite):
 
         # magic
         self.spell_index = 0
-        self.spell_data = import_magic_data()
+        self.spell_data = import_magic_data(self.visible_sprites)
         self.spell = None
 
     def import_player_assets(self):
@@ -136,14 +135,12 @@ class Player(pygame.sprite.Sprite):
                 self.spell_index = 0
 
     def attack(self):
-        #self.weapon = Weapon(self.visible_sprites,
-        # self.weapon_data[self.weapon_index])
         self.weapon = self.weapon_data[self.weapon_index]
         self.weapon.create_weapon(pygame.display.get_surface(), self.rect, self.status.split('_')[0])
 
     def shoot(self):
-        self.spell = Spell(self.visible_sprites, self.spell_data[self.spell_index])
-        self.spell.create(self.rect, self.status.split('_')[0])
+        self.spell = self.spell_data[self.spell_index]
+        self.spell.create(pygame.display.get_surface(), self.rect, self.status.split('_')[0])
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:
