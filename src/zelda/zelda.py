@@ -3,14 +3,14 @@ import sys
 import logging
 import logging.config
 import json
-from zelda.settings import WIDTH, HEIGTH, FPS
+from zelda.settings import WIDTH, HEIGHT, FPS
 from zelda.sprite.level import Level
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Zelda")
         self.clock = pygame.time.Clock()
         self.level = Level()
