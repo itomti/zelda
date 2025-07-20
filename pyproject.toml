@@ -1,0 +1,16 @@
+[project]
+name = "zelda"
+version = "0.1"
+
+[project.scripts]
+zelda = "zelda.zelda:main"
+
+[tool.uv.pip]
+link-mode = "copy"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
