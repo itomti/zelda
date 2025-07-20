@@ -3,7 +3,7 @@ import sys
 import logging
 import logging.config
 import json
-from zelda.settings import *
+from zelda.settings import WIDTH, HEIGTH, FPS
 from zelda.sprite.level import Level
 
 
