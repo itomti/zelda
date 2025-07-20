@@ -1,6 +1,9 @@
 [project]
 name = "zelda"
 version = "0.1"
+dependencies = [
+             'pygame>=2.6.1'
+]
 
 [project.scripts]
 zelda = "zelda.zelda:main"
