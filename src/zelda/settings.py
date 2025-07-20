@@ -1,6 +1,7 @@
 import logging
 import pygame
 from zelda.sprite.weapon import Weapon
+from zelda.sprite.spell import Spell
 from zelda.sprite.camera import YSortCameraGroup
 
 # game setup
@@ -54,7 +55,7 @@ WORLD_MAP = [
 
 def import_weapon_data(camera: YSortCameraGroup) -> list[Weapon]:
     logging.info("importing weapon data")
-    weapons = [
+    weapons: list[Weapon] = [
         Weapon.create_axe(camera),
         Weapon.create_lance(camera),
         Weapon.create_rapier(camera),
@@ -64,10 +65,11 @@ def import_weapon_data(camera: YSortCameraGroup) -> list[Weapon]:
     return weapons
 
 
-def import_magic_data() -> dict:
-    magic_data = [
-    {'name': 'flame', 'strength': 5, 'cost': 20, 'graphic': pygame.image.load('assets/graphics/particles/flame/fire.png').convert_alpha()},
-    {'name': 'heal', 'strength': 20, 'cost': 10, 'graphic': pygame.image.load('assets/graphics/particles/heal/heal.png').convert_alpha()}
+def import_magic_data(camera: YSortCameraGroup) -> list[Spell]:
+    logging.info("importing magic data")
+    magic: list[Spell] = [
+        Spell.create_flame(camera),
+        Spell.create_heal(camera)
     ]
 
-    return magic_data
+    return magic
