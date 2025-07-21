@@ -1,7 +1,6 @@
 import pygame
 
 from zelda.utils import Utilities
-from zelda.settings import import_weapon_data, import_magic_data
 from zelda.sprite.tile import Tile
 from zelda.sprite.player import Player
 from zelda.sprite.camera import YSortCameraGroup
@@ -17,8 +16,8 @@ class Level:
         self.display_surface = display_surface
         self.visible_sprites: pygame.sprite.Group = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
-        self.weapon_data = import_weapon_data(self.visible_sprites)
-        self.magic_data = import_magic_data(self.visible_sprites, self.config)
+        self.weapon_data = Utilities.import_weapon_data()
+        self.magic_data = Utilities.import_magic_data()
         self.create_map()
         self.ui = ui
 
@@ -54,4 +53,5 @@ class Level:
                         object_surface = graphics['objects'][int(column)]
                         Tile(self.config, (x, y), [self.visible_sprites, self.obstacle_sprites], 'object', object_surface)
 
-        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.clock, self.config)
+        animations = Utilities.import_player_assets()
+        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.clock, self.config, animations)

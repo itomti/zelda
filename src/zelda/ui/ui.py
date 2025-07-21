@@ -47,15 +47,15 @@ class UserInterface:
 
     def weapon_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(10, 600, player)
-        weapon_surface: pygame.surface.Surface = player.weapon_data[player.weapon_index].direction_surfaces['full']
+        weapon_surface: pygame.surface.Surface = player.weapon_data[player.weapon_index]['surfaces']['full']
         weapon_rect = weapon_surface.get_rect(center=bg_rect.center)
         self.display_surface.blit(weapon_surface, weapon_rect)
 
     def magic_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(80, 635, player)
-        spell_surface: pygame.surface.Surface = player.spell_data[player.spell_index].direction_surfaces['graphic']
-        spell_rect = spell_surface.get_rect(center=bg_rect.center)
-        self.display_surface.blit(spell_surface, spell_rect)
+        spell_img: pygame.Surface = player.spell_data[player.spell_index]['image']
+        spell_rect = spell_img.get_rect(center=bg_rect.center)
+        self.display_surface.blit(spell_img, spell_rect)
 
     def display(self, player: Player):
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, self.ui_settings.healthBar.color)
