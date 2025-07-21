@@ -75,7 +75,8 @@ class Utilities:
             'image': spell_img,
             'particles': particles,
             'strength': 20,
-            'cost': 10
+            'cost': 10,
+            'audio': pygame.mixer.Sound("assets/audio/Fire.wav")
         }
 
         magic.append(data)
@@ -89,7 +90,8 @@ class Utilities:
             'image': spell_img,
             'particles': particles,
             'strength': 5,
-            'cost': 10
+            'cost': 10,
+            'audio': pygame.mixer.Sound("assets/audio/heal.wav")
         }
 
         magic.append(data)

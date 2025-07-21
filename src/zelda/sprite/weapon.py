@@ -18,7 +18,7 @@ class Direction(Enum):
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player: pygame.rect.Rect, weapon_type: WeaponType, direction_surfaces: dict[str, pygame.Surface],
-                 name: str, cooldown: int, damage: int, direction: str, groups):
+                 name: str, cooldown: int, damage: int, direction: str, audio: pygame.mixer.Sound, groups):
         super().__init__(groups)
         self.weapon_type: WeaponType = weapon_type
         self.cooldown: int = cooldown
@@ -29,6 +29,8 @@ class Weapon(pygame.sprite.Sprite):
         self.direction_surfaces = direction_surfaces
         self.player_rect: pygame.rect.Rect = player
         self.direction: str = direction
+        self.audio: pygame.mixer.Sound = audio
+        self.audio.play()
 
     def display(self) -> None:
         self.image: pygame.surface.Surface = self.direction_surfaces[self.direction]
@@ -44,7 +46,6 @@ class Weapon(pygame.sprite.Sprite):
             self.rect: pygame.rect.Rect = self.image.get_rect(center=self.player_rect.center)
 
 
-        #pygame.draw.rect(self.image, (255, 0, 0), self.rect, 2)
 
     @staticmethod
     def create_axe() -> dict:
@@ -61,7 +62,8 @@ class Weapon(pygame.sprite.Sprite):
             'surfaces': direction_surfaces,
             'name': "axe",
             'cooldown': 300,
-            'damage': 20
+            'damage': 20,
+            'audio': pygame.mixer.Sound("assets/audio/slash.wav")
         }
         return data
 
@@ -80,7 +82,8 @@ class Weapon(pygame.sprite.Sprite):
             'surfaces': direction_surfaces,
             'name': "lance",
             'cooldown': 400,
-            'damage': 30
+            'damage': 30,
+            'audio': pygame.mixer.Sound("assets/audio/claw.wav")
         }
         return data
 
@@ -99,7 +102,8 @@ class Weapon(pygame.sprite.Sprite):
             'surfaces': direction_surfaces,
             'name': "rapier",
             'cooldown': 300,
-            'damage': 20
+            'damage': 20,
+            'audio': pygame.mixer.Sound("assets/audio/claw.wav")
         }
         return data
 
@@ -118,7 +122,8 @@ class Weapon(pygame.sprite.Sprite):
             'surfaces': direction_surfaces,
             'name': "sai",
             'cooldown': 80,
-            'damage': 10
+            'damage': 10,
+            'audio': pygame.mixer.Sound("assets/audio/slash.wav")
         }
         return data
 
@@ -137,7 +142,8 @@ class Weapon(pygame.sprite.Sprite):
             'surfaces': direction_surfaces,
             'name': "sword",
             'cooldown': 80,
-            'damage': 10
+            'damage': 10,
+            'audio': pygame.mixer.Sound("assets/audio/sword.wav")
         }
         return data
 
