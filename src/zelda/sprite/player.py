@@ -147,11 +147,11 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         data = self.weapon_data[self.weapon_index]
-        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], self.visible_sprites)
+        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], data['audio'], self.visible_sprites)
 
     def shoot(self):
         data = self.spell_data[self.spell_index]
-        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['particles'], data['name'], data['strength'], data['cost'], str(self.status).split('_')[0], self.visible_sprites)
+        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['audio'], data['particles'], data['name'], data['strength'], data['cost'], str(self.status).split('_')[0], self.visible_sprites)
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:
@@ -190,7 +190,6 @@ class Player(pygame.sprite.Sprite):
 
     def animate(self):
         animation = self.animations[str(self.status)]
-        logging.info(str(self.status))
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0

@@ -9,7 +9,7 @@ class SpellType(Enum):
     HEAL = 1,
 
 class Spell(pygame.sprite.Sprite):
-    def __init__(self, player_rect: pygame.rect.Rect, config: Config, clock: pygame.time.Clock, spell_type: SpellType, spell_image: pygame.Surface, particles: list[pygame.Surface],
+    def __init__(self, player_rect: pygame.rect.Rect, config: Config, clock: pygame.time.Clock, spell_type: SpellType, spell_image: pygame.Surface, spell_audio: pygame.mixer.Sound, particles: list[pygame.Surface],
                  name: str, strength: int, cost: int, direction: str, groups):
         super().__init__(groups)
         self.clock = clock
@@ -23,18 +23,21 @@ class Spell(pygame.sprite.Sprite):
         self.image = particles[0]
         self.rect: pygame.rect.Rect = pygame.rect.Rect(0, 0, 0, 0)
         self.particles: list[pygame.Surface] = particles
+        self.audio: pygame.mixer.Sound = spell_audio
         self.config = config
         self.animation_speed = 0.1
         self.current_frame = 0
         self.dt = 0
         self.direction: str = direction
         self.offset = 0
+        self.audio.play()
 
 
     def display(self):
         self.current_frame += self.animation_speed
         if self.current_frame >= len(self.particles):
             self.current_frame = 0
+            self.audio.stop()
 
         self.image: pygame.surface.Surface = self.particles[int(self.current_frame)]
         if self.direction == 'right':
