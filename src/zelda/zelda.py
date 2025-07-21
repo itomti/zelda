@@ -19,7 +19,6 @@ class Game:
         self.level = Level(self.config, self.user_interface, self.display_surface, self.clock)
 
     def run(self):
-        logging.info("starting game loop")
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
