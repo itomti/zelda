@@ -28,6 +28,7 @@ class Spell(pygame.sprite.Sprite):
         self.current_frame = 0
         self.dt = 0
         self.direction: str = direction
+        self.offset = 0
 
 
     def display(self):
@@ -37,16 +38,17 @@ class Spell(pygame.sprite.Sprite):
 
         self.image: pygame.surface.Surface = self.particles[int(self.current_frame)]
         if self.direction == 'right':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midleft=self.player_rect.midright + pygame.math.Vector2(0, 16))
+            self.rect: pygame.rect.Rect = self.image.get_rect(midleft=self.player_rect.midright + pygame.math.Vector2(0 + self.offset, 16))
         elif self.direction == 'left':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midright=self.player_rect.midleft + pygame.math.Vector2(0, 16))
+            self.rect: pygame.rect.Rect = self.image.get_rect(midright=self.player_rect.midleft + pygame.math.Vector2(0 - self.offset, 16))
         elif self.direction == 'down':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midtop=self.player_rect.midbottom + pygame.math.Vector2(16, 0))
+            self.rect: pygame.rect.Rect = self.image.get_rect(midtop=self.player_rect.midbottom + pygame.math.Vector2(16, 0 + self.offset))
         elif self.direction == 'up':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midbottom=self.player_rect.midtop + pygame.math.Vector2(16, 0))
+            self.rect: pygame.rect.Rect = self.image.get_rect(midbottom=self.player_rect.midtop + pygame.math.Vector2(16, 0 - self.offset))
         else:
             self.rect: pygame.rect.Rect = self.image.get_rect(center=self.player_rect.center)
 
+        self.offset += 2
 
     def update(self):
         self.display()
