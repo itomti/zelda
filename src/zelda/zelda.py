@@ -21,7 +21,6 @@ class Game:
     def run(self):
         logging.info("starting game loop")
         while True:
-            dt: int = self.clock.tick(self.config.fps) // 1000
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
