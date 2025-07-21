@@ -1,8 +1,8 @@
 import logging
 import pygame
 from enum import Enum
-from zelda.settings import *
 from zelda.sprite.spell import Spell
+from zelda.sprite.weapon import Weapon
 from zelda.utils import Utilities
 from zelda.config import Config
 
@@ -27,15 +27,14 @@ class PlayerAnimationType(Enum):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config):
+    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]]):
         super().__init__(groups)
         self.config = config
         self.clock = clock
         # sprites
         self.visible_sprites = groups
         self.image = pygame.image.load("assets/graphics/player/down/down_0.png").convert_alpha()
-        self.animations = {}
-        self.import_player_assets()
+        self.animations = animations
 
         # rects
         self.rect = self.image.get_rect(topleft=position)
@@ -47,16 +46,16 @@ class Player(pygame.sprite.Sprite):
         self.is_attacking = False
         self.is_cycling = False
         self.attack_cooldown = 400
-        self.attack_time = None
-        self.cycling_time = None
+        self.attack_time = 0
+        self.cycling_time = 0
         self.status: str = 'down'
         self.frame_index: float = 0
         self.animation_speed: float = 0.15
 
         # weapon
         self.weapon_index = 0
-        self.weapon_data = import_weapon_data(self.visible_sprites)
-        self.weapon = None
+        self.weapon_data = Utilities.import_weapon_data()
+        self.weapon: Weapon | None = None
 
         # stats
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
@@ -67,29 +66,8 @@ class Player(pygame.sprite.Sprite):
 
         # magic
         self.spell_index = 0
-        self.spell_data = import_magic_data(self.visible_sprites, self.config)
-        self.spell = None
-
-    def import_player_assets(self):
-        character_path = 'assets/graphics/player'
-        self.animations = {
-            'left': [],
-            'left_attack': [],
-            'left_idle': [],
-            'up': [],
-            'up_attack': [],
-            'up_idle': [],
-            'right': [],
-            'right_attack': [],
-            'right_idle': [],
-            'down': [],
-            'down_attack': [],
-            'down_idle': []
-        }
-        for animation in self.animations.keys():
-            folder_path: str = f"{character_path}/{animation}"
-            surfaces = Utilities.import_folder(folder_path)
-            self.animations[animation] = surfaces
+        self.spell_data = Utilities.import_magic_data()
+        self.spell: Spell | None = None
 
     def input(self) -> None:
         if self.is_attacking:
@@ -138,12 +116,13 @@ class Player(pygame.sprite.Sprite):
                 self.spell_index = 0
 
     def attack(self):
-        self.weapon = self.weapon_data[self.weapon_index]
-        self.weapon.create_weapon(pygame.display.get_surface(), self.rect, self.status.split('_')[0])
+        data = self.weapon_data[self.weapon_index]
+        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], self.status.split('_')[0], self.visible_sprites)
 
     def shoot(self):
-        self.spell = self.spell_data[self.spell_index]
-        self.spell.create(pygame.display.get_surface(), self.rect, self.status.split('_')[0], self.clock)
+        data = self.spell_data[self.spell_index]
+        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['particles'], data['name'], data['strength'], data['cost'], self.status.split('_')[0], self.visible_sprites)
+        #self.spell.display(self.rect, self.status.split('_')[0], self.clock)
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:

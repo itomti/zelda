@@ -17,10 +17,9 @@ class Direction(Enum):
     DOWN = 3
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, weapon_type: WeaponType, direction_surfaces: dict[str, pygame.Surface],
-                 name: str, cooldown: int, damage: int, groups):
+    def __init__(self, player: pygame.rect.Rect, weapon_type: WeaponType, direction_surfaces: dict[str, pygame.Surface],
+                 name: str, cooldown: int, damage: int, direction: str, groups):
         super().__init__(groups)
-        self.groups = groups
         self.weapon_type: WeaponType = weapon_type
         self.cooldown: int = cooldown
         self.damage: int = damage
@@ -28,25 +27,27 @@ class Weapon(pygame.sprite.Sprite):
         self.image: pygame.Surface = pygame.Surface((0, 0))
         self.rect: pygame.rect.Rect = pygame.rect.Rect(0, 0, 0, 0)
         self.direction_surfaces = direction_surfaces
+        self.player_rect: pygame.rect.Rect = player
+        self.direction: str = direction
 
-    def create_weapon(self, surface: pygame.Surface, player_rect: pygame.rect.Rect, direction: str) -> None:
-        self.image: pygame.surface.Surface = self.direction_surfaces[direction]
-        if direction == 'right':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midleft=player_rect.midright + pygame.math.Vector2(0, 16))
-        elif direction == 'left':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midright=player_rect.midleft + pygame.math.Vector2(0, 16))
-        elif direction == 'down':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midtop=player_rect.midbottom + pygame.math.Vector2(16, 0))
-        elif direction == 'up':
-            self.rect: pygame.rect.Rect = self.image.get_rect(midbottom=player_rect.midtop + pygame.math.Vector2(16, 0))
+    def display(self) -> None:
+        self.image: pygame.surface.Surface = self.direction_surfaces[self.direction]
+        if self.direction == 'right':
+            self.rect: pygame.rect.Rect = self.image.get_rect(midleft=self.player_rect.midright + pygame.math.Vector2(0, 16))
+        elif self.direction == 'left':
+            self.rect: pygame.rect.Rect = self.image.get_rect(midright=self.player_rect.midleft + pygame.math.Vector2(0, 16))
+        elif self.direction == 'down':
+            self.rect: pygame.rect.Rect = self.image.get_rect(midtop=self.player_rect.midbottom + pygame.math.Vector2(16, 0))
+        elif self.direction == 'up':
+            self.rect: pygame.rect.Rect = self.image.get_rect(midbottom=self.player_rect.midtop + pygame.math.Vector2(16, 0))
         else:
-            self.rect: pygame.rect.Rect = self.image.get_rect(center=player_rect.center)
+            self.rect: pygame.rect.Rect = self.image.get_rect(center=self.player_rect.center)
 
-        super().__init__(self.groups[0])
-        pygame.draw.rect(self.image, (255, 0, 0), self.rect, 2)
+
+        #pygame.draw.rect(self.image, (255, 0, 0), self.rect, 2)
 
     @staticmethod
-    def create_axe(camera: YSortCameraGroup) -> Weapon:
+    def create_axe() -> dict:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/axe/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/axe/up.png').convert_alpha(),
@@ -54,10 +55,18 @@ class Weapon(pygame.sprite.Sprite):
             'down': pygame.image.load('assets/weapons/axe/down.png').convert_alpha(),
             'full': pygame.image.load('assets/weapons/axe/full.png').convert_alpha()
         }
-        return Weapon(WeaponType.AXE, direction_surfaces, "axe", 300, 20, camera)
+
+        data = {
+            'type': WeaponType.AXE,
+            'surfaces': direction_surfaces,
+            'name': "axe",
+            'cooldown': 300,
+            'damage': 20
+        }
+        return data
 
     @staticmethod
-    def create_lance(camera: YSortCameraGroup) -> Weapon:
+    def create_lance() -> dict:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/lance/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/lance/up.png').convert_alpha(),
@@ -65,10 +74,18 @@ class Weapon(pygame.sprite.Sprite):
             'down': pygame.image.load('assets/weapons/lance/down.png').convert_alpha(),
             'full': pygame.image.load('assets/weapons/lance/full.png').convert_alpha()
         }
-        return Weapon(WeaponType.LANCE, direction_surfaces, "lance", 400, 30, camera)
+
+        data = {
+            'type': WeaponType.LANCE,
+            'surfaces': direction_surfaces,
+            'name': "lance",
+            'cooldown': 400,
+            'damage': 30
+        }
+        return data
 
     @staticmethod
-    def create_rapier(camera: YSortCameraGroup) -> Weapon:
+    def create_rapier() -> dict:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/rapier/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/rapier/up.png').convert_alpha(),
@@ -76,10 +93,18 @@ class Weapon(pygame.sprite.Sprite):
             'down': pygame.image.load('assets/weapons/rapier/down.png').convert_alpha(),
             'full': pygame.image.load('assets/weapons/rapier/full.png').convert_alpha()
         }
-        return Weapon(WeaponType.RAPIER, direction_surfaces, "rapier", 300, 20, camera)
+
+        data = {
+            'type': WeaponType.RAPIER,
+            'surfaces': direction_surfaces,
+            'name': "rapier",
+            'cooldown': 300,
+            'damage': 20
+        }
+        return data
 
     @staticmethod
-    def create_sai(camera: YSortCameraGroup) -> Weapon:
+    def create_sai() -> dict:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/sai/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/sai/up.png').convert_alpha(),
@@ -87,10 +112,18 @@ class Weapon(pygame.sprite.Sprite):
             'down': pygame.image.load('assets/weapons/sai/down.png').convert_alpha(),
             'full': pygame.image.load('assets/weapons/sai/full.png').convert_alpha()
         }
-        return Weapon(WeaponType.SAI, direction_surfaces, "sai", 80, 10, camera)
+
+        data = {
+            'type': WeaponType.SAI,
+            'surfaces': direction_surfaces,
+            'name': "sai",
+            'cooldown': 80,
+            'damage': 10
+        }
+        return data
 
     @staticmethod
-    def create_sword(camera: YSortCameraGroup) -> Weapon:
+    def create_sword() -> dict:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/sword/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/sword/up.png').convert_alpha(),
@@ -98,7 +131,18 @@ class Weapon(pygame.sprite.Sprite):
             'down': pygame.image.load('assets/weapons/sword/down.png').convert_alpha(),
             'full': pygame.image.load('assets/weapons/sword/full.png').convert_alpha()
         }
-        return Weapon(WeaponType.SWORD, direction_surfaces, "sword", 80, 10, camera)
+
+        data = {
+            'type': WeaponType.SWORD,
+            'surfaces': direction_surfaces,
+            'name': "sword",
+            'cooldown': 80,
+            'damage': 10
+        }
+        return data
+
+    def update(self):
+        self.display()
 
     def destroy(self):
         self.kill()
