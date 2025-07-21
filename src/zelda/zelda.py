@@ -28,7 +28,7 @@ class Game:
             self.screen.fill('black')
             self.level.run()
             pygame.display.update()
-            self.clock.tick()
+            self.clock.tick(self.config.fps)
 
 def main():
     setup_logger()
