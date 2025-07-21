@@ -2,6 +2,7 @@ import logging
 from zelda.sprite.weapon import Weapon
 from zelda.sprite.spell import Spell
 from zelda.sprite.camera import YSortCameraGroup
+from zelda.config import Config
 
 WORLD_MAP = [
 ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
@@ -39,11 +40,11 @@ def import_weapon_data(camera: YSortCameraGroup) -> list[Weapon]:
     return weapons
 
 
-def import_magic_data(camera: YSortCameraGroup) -> list[Spell]:
+def import_magic_data(camera: YSortCameraGroup, config: Config) -> list[Spell]:
     logging.info("importing magic data")
     magic: list[Spell] = [
-        Spell.create_flame(camera),
-        Spell.create_heal(camera)
+        Spell.create_flame(camera, config),
+        Spell.create_heal(camera, config)
     ]
 
     return magic

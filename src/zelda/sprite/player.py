@@ -4,6 +4,7 @@ from enum import Enum
 from zelda.settings import *
 from zelda.sprite.spell import Spell
 from zelda.utils import Utilities
+from zelda.config import Config
 
 class DirectionType(Enum):
     HORIZONTAL = 1,
@@ -26,11 +27,13 @@ class PlayerAnimationType(Enum):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group):
+    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config):
         super().__init__(groups)
+        self.config = config
+        self.clock = clock
         # sprites
         self.visible_sprites = groups
-        self.image = pygame.image.load("assets/graphics/test/player.png").convert_alpha()
+        self.image = pygame.image.load("assets/graphics/player/down/down_0.png").convert_alpha()
         self.animations = {}
         self.import_player_assets()
 
@@ -64,7 +67,7 @@ class Player(pygame.sprite.Sprite):
 
         # magic
         self.spell_index = 0
-        self.spell_data = import_magic_data(self.visible_sprites)
+        self.spell_data = import_magic_data(self.visible_sprites, self.config)
         self.spell = None
 
     def import_player_assets(self):
@@ -140,7 +143,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         self.spell = self.spell_data[self.spell_index]
-        self.spell.create(pygame.display.get_surface(), self.rect, self.status.split('_')[0])
+        self.spell.create(pygame.display.get_surface(), self.rect, self.status.split('_')[0], self.clock)
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:

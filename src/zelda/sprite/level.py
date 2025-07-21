@@ -10,14 +10,15 @@ from zelda.ui.ui import UserInterface
 from random import choice
 
 class Level:
-    def __init__(self, config: Config, ui: UserInterface, display_surface: pygame.Surface):
+    def __init__(self, config: Config, ui: UserInterface, display_surface: pygame.Surface, clock: pygame.time.Clock):
+        self.clock: pygame.time.Clock = clock
         self.config = config
         self.player: Player | None = None
         self.display_surface = display_surface
         self.visible_sprites: pygame.sprite.Group = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
         self.weapon_data = import_weapon_data(self.visible_sprites)
-        self.magic_data = import_magic_data(self.visible_sprites)
+        self.magic_data = import_magic_data(self.visible_sprites, self.config)
         self.create_map()
         self.ui = ui
 
@@ -53,4 +54,4 @@ class Level:
                         object_surface = graphics['objects'][int(column)]
                         Tile(self.config, (x, y), [self.visible_sprites, self.obstacle_sprites], 'object', object_surface)
 
-        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites)
+        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.clock, self.config)

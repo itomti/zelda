@@ -16,11 +16,12 @@ class Game:
         self.clock = pygame.time.Clock()
         self.display_surface = pygame.display.get_surface()
         self.user_interface = UserInterface(self.display_surface, self.config)
-        self.level = Level(self.config, self.user_interface, self.display_surface)
+        self.level = Level(self.config, self.user_interface, self.display_surface, self.clock)
 
     def run(self):
         logging.info("starting game loop")
         while True:
+            dt: int = self.clock.tick(self.config.fps) // 1000
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -29,7 +30,7 @@ class Game:
             self.screen.fill('black')
             self.level.run()
             pygame.display.update()
-            self.clock.tick(self.config.fps)
+            self.clock.tick()
 
 def main():
     setup_logger()
