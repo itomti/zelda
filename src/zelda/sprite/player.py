@@ -1,6 +1,6 @@
 import logging
 import pygame
-from enum import Enum
+from enum import Enum, IntEnum
 from zelda.sprite.spell import Spell
 from zelda.sprite.weapon import Weapon
 from zelda.utils import Utilities
@@ -11,20 +11,49 @@ class DirectionType(Enum):
     VERTICAL = 2
 
 
-class PlayerAnimationType(Enum):
-    DOWN = 1,
-    DOWN_ATTACK = 2,
-    DOWN_IDLE = 3,
-    LEFT = 4,
-    LEFT_ATTACK = 5,
-    LEFT_IDLE = 6,
-    RIGHT = 7,
-    RIGHT_ATTACK = 8,
-    RIGHT_IDLE = 9,
-    UP = 10,
+class PlayerAnimationType(IntEnum):
+    DOWN = 1
+    DOWN_ATTACK = 2
+    DOWN_IDLE = 3
+    LEFT = 4
+    LEFT_ATTACK = 5
+    LEFT_IDLE = 6
+    RIGHT = 7
+    RIGHT_ATTACK = 8
+    RIGHT_IDLE = 9
+    UP = 10
     UP_ATTACK = 11
     UP_IDLE = 12
 
+    def __str__(self):
+        value = ""
+        match self.value:
+            case 1:
+                value = "down"
+            case 2:
+                value = "down_attack"
+            case 3:
+                value = "down_idle"
+            case 4:
+                value = "left"
+            case 5:
+                value = "left_attack"
+            case 6:
+                value = "left_idle"
+            case 7:
+                value = "right"
+            case 8:
+                value = "right_attack"
+            case 9:
+                value = "right_idle"
+            case 10:
+                value = "up"
+            case 11:
+                value = "up_attack"
+            case 12:
+                value = "up_idle"
+
+        return value
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]]):
@@ -48,7 +77,7 @@ class Player(pygame.sprite.Sprite):
         self.attack_cooldown = 400
         self.attack_time = 0
         self.cycling_time = 0
-        self.status: str = 'down'
+        self.status: PlayerAnimationType = PlayerAnimationType.DOWN
         self.frame_index: float = 0
         self.animation_speed: float = 0.15
 
@@ -73,21 +102,22 @@ class Player(pygame.sprite.Sprite):
         if self.is_attacking:
             return
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_UP]:
             self.direction.y = -1
-            self.status = 'up'
+            self.status = PlayerAnimationType.UP
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
-            self.status = 'down'
+            self.status = PlayerAnimationType.DOWN
         else:
             self.direction.y = 0
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
-            self.status = 'right'
+            self.status = PlayerAnimationType.RIGHT
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
-            self.status = 'left'
+            self.status = PlayerAnimationType.LEFT
         else:
             self.direction.x = 0
 
@@ -117,12 +147,11 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         data = self.weapon_data[self.weapon_index]
-        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], self.status.split('_')[0], self.visible_sprites)
+        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], self.visible_sprites)
 
     def shoot(self):
         data = self.spell_data[self.spell_index]
-        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['particles'], data['name'], data['strength'], data['cost'], self.status.split('_')[0], self.visible_sprites)
-        #self.spell.display(self.rect, self.status.split('_')[0], self.clock)
+        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['particles'], data['name'], data['strength'], data['cost'], str(self.status).split('_')[0], self.visible_sprites)
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:
@@ -160,7 +189,8 @@ class Player(pygame.sprite.Sprite):
         self.move()
 
     def animate(self):
-        animation = self.animations[self.status]
+        animation = self.animations[str(self.status)]
+        logging.info(str(self.status))
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
@@ -169,19 +199,53 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def set_status(self) -> None:
-        if self.direction.x == 0 and self.direction.y == 0:
-            if 'idle' not in self.status:
-                self.status = self.status.replace('_attack', '')
-                self.status = self.status + '_idle'
+        """
+        x == 0: ??
+        x == 1: right
+        x == -1: left
+        y == 0: ??
+        y == 1: down
+        y == -1: up
+        """
+
+        match (self.is_attacking, self.direction.x, self.direction.y, self.status):
+            case (False, 0, 0, PlayerAnimationType.LEFT):
+                self.status = PlayerAnimationType.LEFT_IDLE
+            case (False, 0, 0, PlayerAnimationType.UP):
+                self.status = PlayerAnimationType.UP_IDLE
+            case (False, 0, 0, PlayerAnimationType.RIGHT):
+                self.status = PlayerAnimationType.RIGHT_IDLE
+            case (False, 0, 0, PlayerAnimationType.DOWN):
+                self.status = PlayerAnimationType.DOWN_IDLE
+            case (True, -1, 0, PlayerAnimationType.LEFT) if PlayerAnimationType.LEFT == self.status:
+                self.status = PlayerAnimationType.LEFT_ATTACK
+            case (True, 0, -1, PlayerAnimationType.UP) if PlayerAnimationType.UP == self.status:
+                self.status = PlayerAnimationType.UP_ATTACK
+            case (True, 1, 0, PlayerAnimationType.RIGHT) if PlayerAnimationType.RIGHT == self.status:
+                self.status = PlayerAnimationType.RIGHT_ATTACK
+            case (True, 0, 1, PlayerAnimationType.DOWN) if PlayerAnimationType.DOWN == self.status:
+                self.status = PlayerAnimationType.DOWN_ATTACK
+            case (True, _, _, PlayerAnimationType.LEFT_IDLE) if PlayerAnimationType.LEFT_IDLE == self.status:
+                self.status = PlayerAnimationType.LEFT_ATTACK
+            case (True, _, _, PlayerAnimationType.UP_IDLE) if PlayerAnimationType.UP_IDLE == self.status:
+                self.status = PlayerAnimationType.UP_ATTACK
+            case (True, _, _, PlayerAnimationType.RIGHT_IDLE) if PlayerAnimationType.RIGHT_IDLE == self.status:
+                self.status = PlayerAnimationType.RIGHT_ATTACK
+            case (True, _, _, PlayerAnimationType.DOWN_IDLE) if PlayerAnimationType.DOWN_IDLE == self.status:
+                self.status = PlayerAnimationType.DOWN_ATTACK
+            case (False, _, _, PlayerAnimationType.LEFT_ATTACK):
+                self.status = PlayerAnimationType.LEFT_IDLE
+            case (False, _, _, PlayerAnimationType.UP_ATTACK):
+                self.status = PlayerAnimationType.UP_IDLE
+            case (False, _, _, PlayerAnimationType.RIGHT_ATTACK):
+                self.status = PlayerAnimationType.RIGHT_IDLE
+            case (False, _, _, PlayerAnimationType.DOWN_ATTACK):
+                self.status = PlayerAnimationType.DOWN_IDLE
 
         if self.is_attacking:
             self.direction.x = 0
             self.direction.y = 0
-            if 'attack' not in self.status:
-                self.status = self.status.replace('_idle', '')
-                self.status = self.status + '_attack'
-        else:
-            self.status = self.status.replace('_attack', '')
+
 
     def reset_is_attacking(self) -> None:
         if not self.is_attacking:
