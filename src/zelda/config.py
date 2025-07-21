@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-import logging
 from pydantic import BaseModel
 
 
@@ -15,7 +14,6 @@ class Config(BaseModel):
         with open("config.json", "r") as f:
             cfg = json.load(f)
 
-        logging.info(json.dumps(cfg))
         return Config(**cfg)
 
 class HealthBar(BaseModel):
