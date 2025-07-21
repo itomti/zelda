@@ -22,7 +22,7 @@
             "background": "#222222",
             "border": "#111111",
             "active": "gold",
-            "text": "#EEEEEE"
+            "text": "#EEEEE2"
         }
     },
     "fps": 60,
