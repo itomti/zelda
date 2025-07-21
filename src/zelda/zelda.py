@@ -17,11 +17,16 @@ class Game:
         self.display_surface = pygame.display.get_surface()
         self.user_interface = UserInterface(self.display_surface, self.config)
         self.level = Level(self.config, self.user_interface, self.display_surface, self.clock)
+        self.audio: pygame.mixer.Sound = pygame.mixer.Sound("assets/audio/main.ogg")
+
 
     def run(self):
+        self.audio.set_volume(0.25)
+        self.audio.play(0, 0, 100)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.audio.stop()
                     pygame.quit()
                     sys.exit()
 
