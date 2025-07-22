@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 import logging
 import pygame
 from enum import Enum
@@ -58,3 +59,15 @@ class Spell(pygame.sprite.Sprite):
 
     def destroy(self) -> None:
         self.kill()
+
+@dataclass
+class SpellInfo:
+    name: str
+    spell_type: SpellType
+    strength: int
+    cost: int
+    spell_image: pygame.Surface
+    particles: list[pygame.Surface]
+    audio: pygame.mixer.Sound
+    animation_speed: float
+    current_frame: int = 0
