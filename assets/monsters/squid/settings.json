@@ -1,0 +1,8 @@
+{
+    "name": "squid",
+    "health": 70,
+    "experience": 120,
+    "damage": 6,
+    "attack_type": "leaf_attack",
+    "attack_sound": "assets/audio/slash.wav"
+}

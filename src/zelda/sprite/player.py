@@ -1,14 +1,11 @@
-import logging
 import pygame
-from enum import Enum, IntEnum
+from enum import IntEnum
 from zelda.sprite.spell import Spell
 from zelda.sprite.weapon import Weapon
+from zelda.sprite.entity import Entity
 from zelda.utils import Utilities
 from zelda.config import Config
 
-class DirectionType(Enum):
-    HORIZONTAL = 1,
-    VERTICAL = 2
 
 
 class PlayerAnimationType(IntEnum):
@@ -55,7 +52,7 @@ class PlayerAnimationType(IntEnum):
 
         return value
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]]):
         super().__init__(groups)
         self.config = config
@@ -67,7 +64,6 @@ class Player(pygame.sprite.Sprite):
 
         # rects
         self.rect = self.image.get_rect(topleft=position)
-        self.direction = pygame.math.Vector2()
         self.obstacle_sprites = obstacle_sprites
         self.hit_box = self.rect.inflate(0, -26)
 
@@ -78,8 +74,6 @@ class Player(pygame.sprite.Sprite):
         self.attack_time = 0
         self.cycling_time = 0
         self.status: PlayerAnimationType = PlayerAnimationType.DOWN
-        self.frame_index: float = 0
-        self.animation_speed: float = 0.15
 
         # weapon
         self.weapon_index = 0
@@ -152,33 +146,6 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         data = self.spell_data[self.spell_index]
         self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['audio'], data['particles'], data['name'], data['strength'], data['cost'], str(self.status).split('_')[0], self.visible_sprites)
-
-    def collision(self, direction: DirectionType):
-        if direction == DirectionType.HORIZONTAL:
-            for sprite in self.obstacle_sprites:
-                if sprite.hit_box.colliderect(self.hit_box):
-                    if self.direction.x > 0:
-                        self.hit_box.right = sprite.hit_box.left
-                    elif self.direction.x < 0:
-                        self.hit_box.left = sprite.hit_box.right
-
-        if direction == DirectionType.VERTICAL:
-            for sprite in self.obstacle_sprites:
-                if sprite.hit_box.colliderect(self.hit_box):
-                    if self.direction.y > 0:
-                        self.hit_box.bottom = sprite.hit_box.top
-                    elif self.direction.y < 0:
-                        self.hit_box.top = sprite.hit_box.bottom
-
-    def move(self) -> None:
-        if self.direction.magnitude() != 0:
-            self.direction = self.direction.normalize()
-
-        self.hit_box.x += self.direction.x * self.speed
-        self.collision(DirectionType.HORIZONTAL)
-        self.hit_box.y += self.direction.y * self.speed
-        self.collision(DirectionType.VERTICAL)
-        self.rect.center = self.hit_box.center
 
     def update(self) -> None:
         self.input()

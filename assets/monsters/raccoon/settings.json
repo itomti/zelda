@@ -1,0 +1,8 @@
+{
+    "name": "raccoon",
+    "health": 300,
+    "experience": 250,
+    "damage": 40,
+    "attack_type": "claw_attack",
+    "attack_sound": "assets/audio/claw.wav"
+}

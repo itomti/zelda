@@ -1,5 +1,7 @@
 import pygame
 import os
+import json
+import logging
 from csv import reader
 from zelda.sprite.weapon import Weapon
 from zelda.sprite.spell import SpellType
@@ -97,3 +99,20 @@ class Utilities:
         magic.append(data)
 
         return magic
+
+    @staticmethod
+    def import_monster_data(path: str) -> dict[str, dict]:
+        if not os.path.exists(path):
+            return {}
+        monsters: dict[str, dict] = {}
+        for _, dirs, _ in os.walk(path):
+            for dirname in dirs:
+                for _, _, files in os.walk(f"{path}/{dirname}"):
+                    for fi in files:
+                        if "settings.json" not in fi:
+                            continue
+                        with open(f"{path}/{dirname}/{fi}", "r") as f:
+                            monster: dict = json.load(f)
+                            monsters[monster['name']] = monster
+
+        return monsters

@@ -1,0 +1,8 @@
+{
+    "name": "spirit",
+    "health": 100,
+    "experience": 110,
+    "damage": 8,
+    "attack_type": "thunder_attack",
+    "attack_sound": "assets/audio/fireball.wav"
+}

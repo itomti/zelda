@@ -20,11 +20,13 @@ class Level:
         self.magic_data = Utilities.import_magic_data()
         self.create_map()
         self.ui = ui
+        self.monsters = Utilities.import_monster_data('assets/monsters')
 
     def run(self):
         self.visible_sprites.draw(self.player.rect)
         self.visible_sprites.update()
         self.ui.display(self.player)
+
 
     def create_map(self):
         layouts = {
