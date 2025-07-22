@@ -4,5 +4,6 @@
     "experience": 120,
     "damage": 6,
     "attack_type": "leaf_attack",
-    "attack_sound": "assets/audio/slash.wav"
+    "attack_sound": "assets/audio/slash.wav",
+    "image": "assets/monsters/squid/idle/0.png"
 }

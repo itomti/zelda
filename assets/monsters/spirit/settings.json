@@ -4,5 +4,6 @@
     "experience": 110,
     "damage": 8,
     "attack_type": "thunder_attack",
-    "attack_sound": "assets/audio/fireball.wav"
+    "attack_sound": "assets/audio/fireball.wav",
+    "image": "assets/monsters/spirit/idle/0.png"
 }

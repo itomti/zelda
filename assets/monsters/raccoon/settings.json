@@ -4,5 +4,6 @@
     "experience": 250,
     "damage": 40,
     "attack_type": "claw_attack",
-    "attack_sound": "assets/audio/claw.wav"
+    "attack_sound": "assets/audio/claw.wav",
+    "image": "assets/monsters/raccoon/idle/0.png"
 }
