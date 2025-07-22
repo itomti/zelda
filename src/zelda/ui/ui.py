@@ -39,7 +39,7 @@ class UserInterface:
     def selection_box(self, left, top, player: Player) -> pygame.rect.Rect:
         bg_rect = pygame.Rect(left, top, self.ui_settings.item_box_size, self.ui_settings.item_box_size)
         pygame.draw.rect(self.display_surface, self.ui_settings.ui_color.background, bg_rect)
-        if player.is_cycling:
+        if player.player_info.is_cycling:
             pygame.draw.rect(self.display_surface, self.ui_settings.ui_color.active, bg_rect, 3)
         else:
             pygame.draw.rect(self.display_surface, self.ui_settings.ui_color.border, bg_rect, 3)
@@ -47,19 +47,19 @@ class UserInterface:
 
     def weapon_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(10, 600, player)
-        weapon_surface: pygame.surface.Surface = player.weapon_data[player.weapon_index]['surfaces']['full']
+        weapon_surface: pygame.surface.Surface = player.player_info.weapon_data[player.player_info.weapon_index]['surfaces']['full']
         weapon_rect = weapon_surface.get_rect(center=bg_rect.center)
         self.display_surface.blit(weapon_surface, weapon_rect)
 
     def magic_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(80, 635, player)
-        spell_img: pygame.Surface = player.spell_data[player.spell_index]['image']
+        spell_img: pygame.Surface = player.player_info.spell_data[player.player_info.spell_index].spell_image
         spell_rect = spell_img.get_rect(center=bg_rect.center)
         self.display_surface.blit(spell_img, spell_rect)
 
     def display(self, player: Player):
-        self.show_bar(player.health, player.stats['health'], self.health_bar_rect, self.ui_settings.healthBar.color)
-        self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, self.ui_settings.energyBar.color)
-        self.show_experience(str(int(player.experience)))
+        self.show_bar(player.player_info.health, player.player_info.health, self.health_bar_rect, self.ui_settings.healthBar.color)
+        self.show_bar(player.player_info.energy, player.player_info.energy, self.energy_bar_rect, self.ui_settings.energyBar.color)
+        self.show_experience(str(int(player.player_info.experience)))
         self.weapon_overlay(player)
         self.magic_overlay(player)
