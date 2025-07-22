@@ -4,7 +4,7 @@ import json
 import logging
 from csv import reader
 from zelda.sprite.weapon import Weapon
-from zelda.sprite.spell import SpellType
+from zelda.sprite.spell import SpellType, SpellInfo
 
 class Utilities:
     @staticmethod
@@ -66,37 +66,22 @@ class Utilities:
 
 
     @staticmethod
-    def import_magic_data() -> list[dict]:
-        magic: list[dict] = []
+    def import_magic_data() -> list[SpellInfo]:
+        magic: list[SpellInfo] = []
         spell_img: pygame.Surface = pygame.image.load('assets/graphics/particles/flame/fire.png').convert_alpha()
         particles: list[pygame.Surface] = Utilities.import_folder('assets/graphics/particles/flame/frames')
+        audio = pygame.mixer.Sound("assets/audio/Fire.wav")
+        spell = SpellInfo('flame', SpellType.FLAME, 20, 10, spell_img, particles, audio, 0.15)
 
-        data = {
-            'type': SpellType.FLAME,
-            'name': 'flame',
-            'image': spell_img,
-            'particles': particles,
-            'strength': 20,
-            'cost': 10,
-            'audio': pygame.mixer.Sound("assets/audio/Fire.wav")
-        }
-
-        magic.append(data)
+        magic.append(spell)
 
         spell_img: pygame.Surface = pygame.image.load('assets/graphics/particles/heal/heal.png').convert_alpha()
         particles: list[pygame.Surface] = Utilities.import_folder('assets/graphics/particles/heal/frames')
 
-        data = {
-            'type': SpellType.HEAL,
-            'name': 'heal',
-            'image': spell_img,
-            'particles': particles,
-            'strength': 5,
-            'cost': 10,
-            'audio': pygame.mixer.Sound("assets/audio/heal.wav")
-        }
+        audio = pygame.mixer.Sound("assets/audio/heal.wav")
+        spell = SpellInfo('heal', SpellType.HEAL, 5, 10, spell_img, particles, audio, 0.15)
 
-        magic.append(data)
+        magic.append(spell)
 
         return magic
 
@@ -113,6 +98,7 @@ class Utilities:
                             continue
                         with open(f"{path}/{dirname}/{fi}", "r") as f:
                             monster: dict = json.load(f)
+                            monster['image'] = pygame.image.load(monster['image']).convert_alpha()
                             monsters[monster['name']] = monster
 
         return monsters
