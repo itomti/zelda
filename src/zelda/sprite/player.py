@@ -1,161 +1,69 @@
+from dataclasses import dataclass
 import pygame
-from enum import IntEnum
-from zelda.sprite.spell import Spell
+import logging
+from zelda.sprite.spell import Spell, SpellInfo
 from zelda.sprite.weapon import Weapon
-from zelda.sprite.entity import Entity
+from zelda.sprite.entity import Entity, AnimationType
 from zelda.utils import Utilities
 from zelda.config import Config
 
-
-
-class PlayerAnimationType(IntEnum):
-    DOWN = 1
-    DOWN_ATTACK = 2
-    DOWN_IDLE = 3
-    LEFT = 4
-    LEFT_ATTACK = 5
-    LEFT_IDLE = 6
-    RIGHT = 7
-    RIGHT_ATTACK = 8
-    RIGHT_IDLE = 9
-    UP = 10
-    UP_ATTACK = 11
-    UP_IDLE = 12
-
-    def __str__(self):
-        value = ""
-        match self.value:
-            case 1:
-                value = "down"
-            case 2:
-                value = "down_attack"
-            case 3:
-                value = "down_idle"
-            case 4:
-                value = "left"
-            case 5:
-                value = "left_attack"
-            case 6:
-                value = "left_idle"
-            case 7:
-                value = "right"
-            case 8:
-                value = "right_attack"
-            case 9:
-                value = "right_idle"
-            case 10:
-                value = "up"
-            case 11:
-                value = "up_attack"
-            case 12:
-                value = "up_idle"
-
-        return value
-
 class Player(Entity):
-    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]]):
-        super().__init__(groups)
+    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]], image: pygame.Surface):
+        super().__init__(position, 0.15, 6, image, (0, -26), animations, obstacle_sprites, groups)
         self.config = config
         self.clock = clock
-        # sprites
         self.visible_sprites = groups
-        self.image = pygame.image.load("assets/graphics/player/down/down_0.png").convert_alpha()
-        self.animations = animations
-
-        # rects
-        self.rect = self.image.get_rect(topleft=position)
-        self.obstacle_sprites = obstacle_sprites
-        self.hit_box = self.rect.inflate(0, -26)
-
-        # animation info
-        self.is_attacking = False
-        self.is_cycling = False
-        self.attack_cooldown = 400
-        self.attack_time = 0
-        self.cycling_time = 0
-        self.status: PlayerAnimationType = PlayerAnimationType.DOWN
-
-        # weapon
-        self.weapon_index = 0
-        self.weapon_data = Utilities.import_weapon_data()
-        self.weapon: Weapon | None = None
-
-        # stats
-        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
-        self.health = self.stats['health']
-        self.energy = self.stats['energy']
-        self.speed = self.stats['speed']
-        self.experience = 123
-
-        # magic
-        self.spell_index = 0
-        self.spell_data = Utilities.import_magic_data()
-        self.spell: Spell | None = None
+        self.image = image
+        self.player_info = PlayerInfo(weapon=None, spell=None, weapon_data=Utilities.import_weapon_data(), spell_data=Utilities.import_magic_data())
 
     def input(self) -> None:
-        if self.is_attacking:
+        if self.player_info.is_attacking:
             return
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_UP]:
             self.direction.y = -1
-            self.status = PlayerAnimationType.UP
+            self.status = AnimationType.UP
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
-            self.status = PlayerAnimationType.DOWN
+            self.status = AnimationType.DOWN
         else:
             self.direction.y = 0
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
-            self.status = PlayerAnimationType.RIGHT
+            self.status = AnimationType.RIGHT
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
-            self.status = PlayerAnimationType.LEFT
+            self.status = AnimationType.LEFT
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_SPACE] and not self.is_attacking:
-            self.is_attacking = True
-            self.attack_time = pygame.time.get_ticks()
+        if keys[pygame.K_SPACE] and not self.player_info.is_attacking:
+            self.player_info.is_attacking = True
+            self.player_info.attack_time = pygame.time.get_ticks()
             self.attack()
 
-        if keys[pygame.K_LCTRL] and not self.is_attacking:
-            self.is_attacking = True
-            self.attack_time = pygame.time.get_ticks()
+        if keys[pygame.K_LCTRL] and not self.player_info.is_attacking:
+            self.player_info.is_attacking = True
+            self.player_info.attack_time = pygame.time.get_ticks()
             self.shoot()
 
-        if keys[pygame.K_q] and not self.is_cycling:
-            self.is_cycling = True
-            self.cycling_time = pygame.time.get_ticks()
-            self.weapon_index += 1
-            if self.weapon_index >= len(self.weapon_data):
-                self.weapon_index = 0
+        if keys[pygame.K_q] and not self.player_info.is_cycling:
+            self.player_info.is_cycling = True
+            self.player_info.cycling_time = pygame.time.get_ticks()
+            self.player_info.weapon_index += 1
+            if self.player_info.weapon_index >= len(self.player_info.weapon_data):
+                self.player_info.weapon_index = 0
 
-        if keys[pygame.K_e] and not self.is_cycling:
-            self.is_cycling = True
-            self.cycling_time = pygame.time.get_ticks()
-            self.spell_index += 1
-            if self.spell_index >= len(self.spell_data):
-                self.spell_index = 0
+        if keys[pygame.K_e] and not self.player_info.is_cycling:
+            self.player_info.is_cycling = True
+            self.player_info.cycling_time = pygame.time.get_ticks()
+            self.player_info.spell_index += 1
+            if self.player_info.spell_index >= len(self.player_info.spell_data):
+                self.player_info.spell_index = 0
 
-    def attack(self):
-        data = self.weapon_data[self.weapon_index]
-        self.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], data['audio'], self.visible_sprites)
-
-    def shoot(self):
-        data = self.spell_data[self.spell_index]
-        self.spell = Spell(self.rect, self.config, self.clock, data['type'], data['image'], data['audio'], data['particles'], data['name'], data['strength'], data['cost'], str(self.status).split('_')[0], self.visible_sprites)
-
-    def update(self) -> None:
-        self.input()
-        self.reset_is_attacking()
-        self.reset_is_cycling()
-        self.set_status()
-        self.animate()
-        self.move()
-
-    def animate(self):
+    def animate(self) -> None:
         animation = self.animations[str(self.status)]
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
@@ -164,69 +72,99 @@ class Player(Entity):
         self.image: pygame.surface.Surface = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hit_box.center)
 
+
+    def attack(self):
+        data = self.player_info.weapon_data[self.player_info.weapon_index]
+        self.player_info.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], data['audio'], self.visible_sprites)
+
+    def shoot(self):
+        data = self.player_info.spell_data[self.player_info.spell_index]
+        self.player_info.spell = Spell(self.rect, self.config, self.clock, data.spell_type, data.spell_image, data.audio, data.particles, data.name, data.strength, data.cost, str(self.status).split('_')[0], self.visible_sprites)
+
+    def update(self) -> None:
+        self.input()
+        self.reset_is_attacking()
+        self.reset_is_cycling()
+        self.set_status()
+        self.move()
+
+
     def set_status(self) -> None:
-        """
-        x == 0: ??
-        x == 1: right
-        x == -1: left
-        y == 0: ??
-        y == 1: down
-        y == -1: up
-        """
 
-        match (self.is_attacking, self.direction.x, self.direction.y, self.status):
-            case (False, 0, 0, PlayerAnimationType.LEFT):
-                self.status = PlayerAnimationType.LEFT_IDLE
-            case (False, 0, 0, PlayerAnimationType.UP):
-                self.status = PlayerAnimationType.UP_IDLE
-            case (False, 0, 0, PlayerAnimationType.RIGHT):
-                self.status = PlayerAnimationType.RIGHT_IDLE
-            case (False, 0, 0, PlayerAnimationType.DOWN):
-                self.status = PlayerAnimationType.DOWN_IDLE
-            case (True, -1, 0, PlayerAnimationType.LEFT) if PlayerAnimationType.LEFT == self.status:
-                self.status = PlayerAnimationType.LEFT_ATTACK
-            case (True, 0, -1, PlayerAnimationType.UP) if PlayerAnimationType.UP == self.status:
-                self.status = PlayerAnimationType.UP_ATTACK
-            case (True, 1, 0, PlayerAnimationType.RIGHT) if PlayerAnimationType.RIGHT == self.status:
-                self.status = PlayerAnimationType.RIGHT_ATTACK
-            case (True, 0, 1, PlayerAnimationType.DOWN) if PlayerAnimationType.DOWN == self.status:
-                self.status = PlayerAnimationType.DOWN_ATTACK
-            case (True, _, _, PlayerAnimationType.LEFT_IDLE) if PlayerAnimationType.LEFT_IDLE == self.status:
-                self.status = PlayerAnimationType.LEFT_ATTACK
-            case (True, _, _, PlayerAnimationType.UP_IDLE) if PlayerAnimationType.UP_IDLE == self.status:
-                self.status = PlayerAnimationType.UP_ATTACK
-            case (True, _, _, PlayerAnimationType.RIGHT_IDLE) if PlayerAnimationType.RIGHT_IDLE == self.status:
-                self.status = PlayerAnimationType.RIGHT_ATTACK
-            case (True, _, _, PlayerAnimationType.DOWN_IDLE) if PlayerAnimationType.DOWN_IDLE == self.status:
-                self.status = PlayerAnimationType.DOWN_ATTACK
-            case (False, _, _, PlayerAnimationType.LEFT_ATTACK):
-                self.status = PlayerAnimationType.LEFT_IDLE
-            case (False, _, _, PlayerAnimationType.UP_ATTACK):
-                self.status = PlayerAnimationType.UP_IDLE
-            case (False, _, _, PlayerAnimationType.RIGHT_ATTACK):
-                self.status = PlayerAnimationType.RIGHT_IDLE
-            case (False, _, _, PlayerAnimationType.DOWN_ATTACK):
-                self.status = PlayerAnimationType.DOWN_IDLE
+        match (self.player_info.is_attacking, self.direction.x, self.direction.y, self.status):
+            case (False, 0, 0, AnimationType.LEFT):
+                self.status = AnimationType.LEFT_IDLE
+            case (False, 0, 0, AnimationType.UP):
+                self.status = AnimationType.UP_IDLE
+            case (False, 0, 0, AnimationType.RIGHT):
+                self.status = AnimationType.RIGHT_IDLE
+            case (False, 0, 0, AnimationType.DOWN):
+                self.status = AnimationType.DOWN_IDLE
+            case (True, -1, 0, AnimationType.LEFT) if AnimationType.LEFT == self.status:
+                self.status = AnimationType.LEFT_ATTACK
+            case (True, 0, -1, AnimationType.UP) if AnimationType.UP == self.status:
+                self.status = AnimationType.UP_ATTACK
+            case (True, 1, 0, AnimationType.RIGHT) if AnimationType.RIGHT == self.status:
+                self.status = AnimationType.RIGHT_ATTACK
+            case (True, 0, 1, AnimationType.DOWN) if AnimationType.DOWN == self.status:
+                self.status = AnimationType.DOWN_ATTACK
+            case (True, _, _, AnimationType.LEFT_IDLE) if AnimationType.LEFT_IDLE == self.status:
+                self.status = AnimationType.LEFT_ATTACK
+            case (True, _, _, AnimationType.UP_IDLE) if AnimationType.UP_IDLE == self.status:
+                self.status = AnimationType.UP_ATTACK
+            case (True, _, _, AnimationType.RIGHT_IDLE) if AnimationType.RIGHT_IDLE == self.status:
+                self.status = AnimationType.RIGHT_ATTACK
+            case (True, _, _, AnimationType.DOWN_IDLE) if AnimationType.DOWN_IDLE == self.status:
+                self.status = AnimationType.DOWN_ATTACK
+            case (False, _, _, AnimationType.LEFT_ATTACK):
+                self.status = AnimationType.LEFT_IDLE
+            case (False, _, _, AnimationType.UP_ATTACK):
+                self.status = AnimationType.UP_IDLE
+            case (False, _, _, AnimationType.RIGHT_ATTACK):
+                self.status = AnimationType.RIGHT_IDLE
+            case (False, _, _, AnimationType.DOWN_ATTACK):
+                self.status = AnimationType.DOWN_IDLE
 
-        if self.is_attacking:
+        if self.player_info.is_attacking:
             self.direction.x = 0
             self.direction.y = 0
 
 
     def reset_is_attacking(self) -> None:
-        if not self.is_attacking:
+        if not self.player_info.is_attacking:
             return
 
         current_time = pygame.time.get_ticks()
-        if current_time - self.attack_time >= self.attack_cooldown:
-            self.is_attacking = False
-            if self.weapon is not None: self.weapon.destroy()
-            if self.spell is not None: self.spell.destroy()
+        if current_time - self.player_info.attack_time >= self.player_info.attack_cooldown:
+            self.player_info.is_attacking = False
+            if self.player_info.weapon is not None: self.player_info.weapon.destroy()
+            if self.player_info.spell is not None: self.player_info.spell.destroy()
 
     def reset_is_cycling(self) -> None:
-        if not self.is_cycling:
+        if not self.player_info.is_cycling:
             return
 
         current_time = pygame.time.get_ticks()
-        if current_time - self.cycling_time >= 200:
-            self.is_cycling = False
+        if current_time - self.player_info.cycling_time >= 200:
+            self.player_info.is_cycling = False
+
+@dataclass
+class PlayerInfo:
+    weapon_data: list[dict]
+    spell_data: list[SpellInfo]
+    spell: Spell | None = None
+    weapon: Weapon | None = None
+    is_attacking = False
+    is_cycling = False
+    attack_cooldown = 400
+    attack_time = 0
+    cycling_time = 0
+    weapon_index = 0
+
+    health = 100
+    energy = 60
+    magic = 4
+    attack = 4
+    speed = 6
+    experience = 123
+    spell_index = 0
