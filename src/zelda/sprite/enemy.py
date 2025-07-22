@@ -1,11 +1,20 @@
+from dataclasses import dataclass
 import pygame
+from zelda.sprite.entity import Entity
 
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self, name: str, health: int, experience: int, damage: int, attack_type: str, attack_sound: pygame.mixer.Sound, sprites):
-        super().__init__(sprites)
-        self.name = name
-        self.health = health
-        self.experience = experience
-        self.damage = damage
-        self.attack_type = attack_type
-        self.attack_sound = attack_sound
+@dataclass
+class EnemyInfo:
+    name: str
+    health: int
+    experience: int
+    damage: int
+    attack_type: str
+    attack_sound: pygame.mixer.Sound
+    image: pygame.Surface
+
+class Enemy(Entity):
+    def __init__(self, position: tuple, enemy_info: EnemyInfo, obstacles, sprites):
+        super().__init__(position, 0.15, 0.15, enemy_info.image, (0, -26), {}, obstacles, sprites)
+        self.info = enemy_info
+        self.image = enemy_info.image
+        self.visible_sprites = sprites
