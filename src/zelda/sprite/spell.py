@@ -6,8 +6,31 @@ from enum import Enum
 from zelda.config import Config
 
 class SpellType(Enum):
-    FLAME = 0,
-    HEAL = 1,
+    FLAME = 0
+    HEAL = 1
+
+    def __str__(self) -> str:
+        value = ""
+        match self.value:
+            case 0:
+                value = "Flame"
+            case 1:
+                value = "Heal"
+
+        return value
+
+@dataclass
+class SpellInfo:
+    name: str
+    spell_type: SpellType
+    strength: int
+    cost: int
+    spell_image: pygame.Surface
+    particles: list[pygame.Surface]
+    audio: pygame.mixer.Sound
+    animation_speed: float
+    current_frame: int = 0
+
 
 class Spell(pygame.sprite.Sprite):
     def __init__(self, player_rect: pygame.rect.Rect, config: Config, clock: pygame.time.Clock, spell_type: SpellType, spell_image: pygame.Surface, spell_audio: pygame.mixer.Sound, particles: list[pygame.Surface],
@@ -60,14 +83,3 @@ class Spell(pygame.sprite.Sprite):
     def destroy(self) -> None:
         self.kill()
 
-@dataclass
-class SpellInfo:
-    name: str
-    spell_type: SpellType
-    strength: int
-    cost: int
-    spell_image: pygame.Surface
-    particles: list[pygame.Surface]
-    audio: pygame.mixer.Sound
-    animation_speed: float
-    current_frame: int = 0

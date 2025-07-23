@@ -1,20 +1,44 @@
 from dataclasses import dataclass
+from enum import IntEnum
 import pygame
 import logging
 from zelda.sprite.spell import Spell, SpellInfo
-from zelda.sprite.weapon import Weapon
+from zelda.sprite.weapon import Weapon, WeaponInfo
 from zelda.sprite.entity import Entity, AnimationType
 from zelda.utils import Utilities
 from zelda.config import Config
 
+
+@dataclass
+class PlayerInfo:
+    weapon_data: list[WeaponInfo]
+    spell_data: list[SpellInfo]
+    animations: dict[str, list[pygame.Surface]]
+    spell: Spell | None = None
+    weapon: Weapon | None = None
+    is_attacking = False
+    is_cycling = False
+    attack_cooldown = 400
+    attack_time = 0
+    cycling_time = 0
+    weapon_index = 0
+    health = 100
+    energy = 60
+    magic = 4
+    attack = 4
+    speed = 6
+    experience = 123
+    spell_index = 0
+
+
 class Player(Entity):
-    def __init__(self, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, animations: dict[str, list[pygame.Surface]], image: pygame.Surface):
-        super().__init__(position, 0.15, 6, image, (0, -26), animations, obstacle_sprites, groups)
+    def __init__(self, player_info: PlayerInfo, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, image: pygame.Surface):
+        super().__init__(position, 0.15, 6, image, (0, -26), player_info.animations, AnimationType.DOWN, obstacle_sprites, groups)
         self.config = config
         self.clock = clock
         self.visible_sprites = groups
         self.image = image
-        self.player_info = PlayerInfo(weapon=None, spell=None, weapon_data=Utilities.import_weapon_data(), spell_data=Utilities.import_magic_data())
+        self.player_info = player_info
 
     def input(self) -> None:
         if self.player_info.is_attacking:
@@ -63,22 +87,14 @@ class Player(Entity):
             if self.player_info.spell_index >= len(self.player_info.spell_data):
                 self.player_info.spell_index = 0
 
-    def animate(self) -> None:
-        animation = self.animations[str(self.status)]
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(animation):
-            self.frame_index = 0
-
-        self.image: pygame.surface.Surface = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect(center=self.hit_box.center)
-
-
     def attack(self):
         data = self.player_info.weapon_data[self.player_info.weapon_index]
-        self.player_info.weapon = Weapon(self.rect, data['type'], data['surfaces'], data['name'], data['cooldown'], data['damage'], str(self.status).split('_')[0], data['audio'], self.visible_sprites)
+        logging.debug(f"Spawning weapon {data.weapon_type}")
+        self.player_info.weapon = Weapon(self.rect, data.weapon_type, data.surfaces, data.name, data.cooldown, data.damage, str(self.status).split('_')[0], data.audio, self.visible_sprites)
 
     def shoot(self):
         data = self.player_info.spell_data[self.player_info.spell_index]
+        logging.debug(f"Spawning spell {data.spell_type}")
         self.player_info.spell = Spell(self.rect, self.config, self.clock, data.spell_type, data.spell_image, data.audio, data.particles, data.name, data.strength, data.cost, str(self.status).split('_')[0], self.visible_sprites)
 
     def update(self) -> None:
@@ -86,11 +102,11 @@ class Player(Entity):
         self.reset_is_attacking()
         self.reset_is_cycling()
         self.set_status()
+        self.animate()
         self.move()
 
 
     def set_status(self) -> None:
-
         match (self.player_info.is_attacking, self.direction.x, self.direction.y, self.status):
             case (False, 0, 0, AnimationType.LEFT):
                 self.status = AnimationType.LEFT_IDLE
@@ -148,23 +164,3 @@ class Player(Entity):
         if current_time - self.player_info.cycling_time >= 200:
             self.player_info.is_cycling = False
 
-@dataclass
-class PlayerInfo:
-    weapon_data: list[dict]
-    spell_data: list[SpellInfo]
-    spell: Spell | None = None
-    weapon: Weapon | None = None
-    is_attacking = False
-    is_cycling = False
-    attack_cooldown = 400
-    attack_time = 0
-    cycling_time = 0
-    weapon_index = 0
-
-    health = 100
-    energy = 60
-    magic = 4
-    attack = 4
-    speed = 6
-    experience = 123
-    spell_index = 0
