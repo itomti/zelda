@@ -16,6 +16,9 @@ class AnimationType(IntEnum):
     UP = 10
     UP_ATTACK = 11
     UP_IDLE = 12
+    IDLE = 13
+    MOVE = 14
+    ATTACK = 15
 
     def __str__(self):
         value = ""
@@ -44,11 +47,17 @@ class AnimationType(IntEnum):
                 value = "up_attack"
             case 12:
                 value = "up_idle"
+            case 13:
+                value = "idle"
+            case 14:
+                value = "move"
+            case 15:
+                value = "attack"
 
         return value
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, position, animation_speed: float, speed: int, image: pygame.Surface, hit_box: tuple, animations: dict[str, list[pygame.Surface]], obstacles: pygame.sprite.Group, groups: pygame.sprite.Group):
+    def __init__(self, position, animation_speed: float, speed: float, image: pygame.Surface, hit_box: tuple, animations: dict[str, list[pygame.Surface]], status: AnimationType, obstacles: pygame.sprite.Group, groups: pygame.sprite.Group):
         super().__init__(groups)
         self.image = image
         self.rect = self.image.get_rect(topleft=position)
@@ -59,8 +68,16 @@ class Entity(pygame.sprite.Sprite):
         self.animation_speed: float = animation_speed
         self.speed = speed
         self.direction = pygame.math.Vector2()
-        self.status = AnimationType.DOWN
+        self.status = status
 
+    def animate(self) -> None:
+        animation = self.animations[str(self.status)]
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+
+        self.image: pygame.surface.Surface = animation[int(self.frame_index)]
+        self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def collision(self, direction: DirectionType):
         if direction == DirectionType.HORIZONTAL:
@@ -88,16 +105,6 @@ class Entity(pygame.sprite.Sprite):
         self.hit_box.y += self.direction.y * self.speed
         self.collision(DirectionType.VERTICAL)
         self.rect.center = self.hit_box.center
-        self.animate()
-
-    def animate(self) -> None:
-        animation = self.animations[str(self.status)]
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(animation):
-            self.frame_index = 0
-
-        self.image: pygame.surface.Surface = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect(center=self.hit_box.center)
 
 
 class MagicEntity(Entity):
