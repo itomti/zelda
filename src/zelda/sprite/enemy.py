@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import IntEnum
 import random
 import logging
 import pygame
@@ -23,23 +22,48 @@ class Enemy(Entity):
         self.image = enemy_info.image
         self.visible_sprites = sprites
         self.status = AnimationType.IDLE
-        self.move_cooldown = 3000
+        self.move_cooldown = 5000
         self.move_time = pygame.time.get_ticks()
+        self.is_moving = False
+        self.times_moved = 0
+        self.times_to_move = 0
+        self.can_move: bool = True
 
     def update(self):
         self.animate()
-        self.random_move()
+        self.reset_moving()
+        self.move()
+
+
+    def reset_moving(self) -> None:
+        if self.is_moving and self.times_moved != self.times_to_move:
+            self.times_moved += 1
+            return
+
+        self.times_moved = 0
+        self.times_to_move = 0
+        self.is_moving = False
+        self.can_move = True
+        self.direction.x = 0
+        self.direction.y = 0
 
     def random_move(self) -> None:
         current_time = pygame.time.get_ticks()
         if current_time - self.move_time <= self.move_cooldown:
             return
 
-        self.move_time = pygame.time.get_ticks()
-        random_direction = random.randint(0, 3)
-        times_to_move = random.randint(0, 15)
+        self.times_to_move = random.randint(64, 128)
         self.status = AnimationType.MOVE
-        logging.info(f"moving {times_to_move} time(s)")
+        self.move_time = pygame.time.get_ticks()
+        self.pick_direction()
+        self.can_move = False
+        self.is_moving = True
+
+    def pick_direction(self) -> None:
+        if self.is_moving:
+            return
+
+        random_direction = random.randint(0, 3)
 
         if random_direction == 0:
             self.direction.y = 0
@@ -53,9 +77,3 @@ class Enemy(Entity):
         elif random_direction == 3:
             self.direction.x = 0
             self.direction.y = 1
-
-        for _ in range(times_to_move):
-            self.move()
-
-        self.direction.x = 0
-        self.direction.y = 0

@@ -19,21 +19,43 @@ class Level:
         self.config = config
         self.player: Player
         self.display_surface = display_surface
-        self.visible_sprites: pygame.sprite.Group = YSortCameraGroup()
+        self.visible_sprites: YSortCameraGroup = YSortCameraGroup(pygame.sprite.Group())
         self.obstacle_sprites = pygame.sprite.Group()
         self.monsters: list[Enemy] = []
         self.create_map()
         self.create_player()
         self.create_monsters()
         self.ui = ui
+        self.moving_monsters: list[Enemy] = []
 
     def run(self):
         self.visible_sprites.draw(self.player.rect)
         self.visible_sprites.update()
         self.ui.display(self.player)
-        for monster in self.monsters:
+        self.move_monsters_random()
+
+    def move_monsters_random(self) -> None:
+        if len(self.moving_monsters) == 0:
+            self.pick_monsters_to_move()
+
+        for monster in self.moving_monsters:
             monster.random_move()
 
+        for monster in self.moving_monsters:
+            if monster.can_move:
+                self.moving_monsters.remove(monster)
+
+    def pick_monsters_to_move(self) -> None:
+        movable = [m for m in self.monsters if m.can_move == True]
+        if len(movable) == 0:
+            return
+
+        for _ in range(2):
+            m = self.monsters[random.randint(0, len(movable) - 1)]
+            if not m.can_move:
+                continue
+
+            self.moving_monsters.append(m)
 
     def create_map(self):
         layouts = {
