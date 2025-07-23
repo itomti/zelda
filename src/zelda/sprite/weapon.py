@@ -1,20 +1,52 @@
 from __future__ import annotations
+from dataclasses import dataclass
+import pathlib
 import pygame
 from enum import Enum
 from zelda.sprite.camera import YSortCameraGroup
 
 class WeaponType(Enum):
-    SWORD = 0,
-    SAI = 1,
-    RAPIER = 2,
-    LANCE = 3,
+    SWORD = 0
+    SAI = 1
+    RAPIER = 2
+    LANCE = 3
     AXE = 4
+    UNKNOWN = 5
+
+    def __str__(self) -> str:
+        value = ""
+
+        match self.value:
+            case 0:
+                value = "Sword"
+            case 1:
+                value = "Sai"
+            case 2:
+                value = "Rapier"
+            case 3:
+                value = "Lance"
+            case 4:
+                value = "Axe"
+            case _:
+                value = f"Unknown, val: {self.value}"
+
+        return value
 
 class Direction(Enum):
     LEFT = 0,
     UP = 1,
     RIGHT = 2,
     DOWN = 3
+
+@dataclass
+class WeaponInfo:
+    weapon_type: WeaponType
+    cooldown: int
+    damage: int
+    name: str
+    surfaces: dict[str, pygame.Surface]
+    audio: pygame.mixer.Sound
+    image: pygame.Surface
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player: pygame.rect.Rect, weapon_type: WeaponType, direction_surfaces: dict[str, pygame.Surface],
@@ -48,7 +80,7 @@ class Weapon(pygame.sprite.Sprite):
 
 
     @staticmethod
-    def create_axe() -> dict:
+    def create_axe() -> WeaponInfo:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/axe/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/axe/up.png').convert_alpha(),
@@ -57,18 +89,12 @@ class Weapon(pygame.sprite.Sprite):
             'full': pygame.image.load('assets/weapons/axe/full.png').convert_alpha()
         }
 
-        data = {
-            'type': WeaponType.AXE,
-            'surfaces': direction_surfaces,
-            'name': "axe",
-            'cooldown': 300,
-            'damage': 20,
-            'audio': pygame.mixer.Sound("assets/audio/slash.wav")
-        }
-        return data
+        audio = pygame.mixer.Sound("assets/audio/slash.wav")
+        image = pygame.image.load('assets/weapons/axe/full.png').convert_alpha()
+        return WeaponInfo(WeaponType.AXE, 300, 20, 'axe', direction_surfaces, audio, image)
 
     @staticmethod
-    def create_lance() -> dict:
+    def create_lance() -> WeaponInfo:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/lance/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/lance/up.png').convert_alpha(),
@@ -77,18 +103,13 @@ class Weapon(pygame.sprite.Sprite):
             'full': pygame.image.load('assets/weapons/lance/full.png').convert_alpha()
         }
 
-        data = {
-            'type': WeaponType.LANCE,
-            'surfaces': direction_surfaces,
-            'name': "lance",
-            'cooldown': 400,
-            'damage': 30,
-            'audio': pygame.mixer.Sound("assets/audio/claw.wav")
-        }
-        return data
+        audio = pygame.mixer.Sound("assets/audio/claw.wav")
+        image = pygame.image.load('assets/weapons/lance/full.png').convert_alpha()
+        return WeaponInfo(WeaponType.LANCE, 300, 20, 'lance', direction_surfaces, audio, image)
+
 
     @staticmethod
-    def create_rapier() -> dict:
+    def create_rapier() -> WeaponInfo:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/rapier/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/rapier/up.png').convert_alpha(),
@@ -97,18 +118,12 @@ class Weapon(pygame.sprite.Sprite):
             'full': pygame.image.load('assets/weapons/rapier/full.png').convert_alpha()
         }
 
-        data = {
-            'type': WeaponType.RAPIER,
-            'surfaces': direction_surfaces,
-            'name': "rapier",
-            'cooldown': 300,
-            'damage': 20,
-            'audio': pygame.mixer.Sound("assets/audio/claw.wav")
-        }
-        return data
+        audio = pygame.mixer.Sound("assets/audio/claw.wav")
+        image = pygame.image.load('assets/weapons/rapier/full.png').convert_alpha()
+        return WeaponInfo(WeaponType.RAPIER, 300, 20, 'rapier', direction_surfaces, audio, image)
 
     @staticmethod
-    def create_sai() -> dict:
+    def create_sai() -> WeaponInfo:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/sai/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/sai/up.png').convert_alpha(),
@@ -117,18 +132,13 @@ class Weapon(pygame.sprite.Sprite):
             'full': pygame.image.load('assets/weapons/sai/full.png').convert_alpha()
         }
 
-        data = {
-            'type': WeaponType.SAI,
-            'surfaces': direction_surfaces,
-            'name': "sai",
-            'cooldown': 80,
-            'damage': 10,
-            'audio': pygame.mixer.Sound("assets/audio/slash.wav")
-        }
-        return data
+        audio = pygame.mixer.Sound("assets/audio/slash.wav")
+        image = pygame.image.load('assets/weapons/sai/full.png').convert_alpha()
+        return WeaponInfo(WeaponType.SAI, 80, 10, 'sai', direction_surfaces, audio, image)
+
 
     @staticmethod
-    def create_sword() -> dict:
+    def create_sword() -> WeaponInfo:
         direction_surfaces: dict[str, pygame.Surface] = {
             'left': pygame.image.load('assets/weapons/sword/left.png').convert_alpha(),
             'up': pygame.image.load('assets/weapons/sword/up.png').convert_alpha(),
@@ -137,15 +147,10 @@ class Weapon(pygame.sprite.Sprite):
             'full': pygame.image.load('assets/weapons/sword/full.png').convert_alpha()
         }
 
-        data = {
-            'type': WeaponType.SWORD,
-            'surfaces': direction_surfaces,
-            'name': "sword",
-            'cooldown': 80,
-            'damage': 10,
-            'audio': pygame.mixer.Sound("assets/audio/sword.wav")
-        }
-        return data
+        audio = pygame.mixer.Sound("assets/audio/sword.wav")
+        image = pygame.image.load('assets/weapons/sword/full.png').convert_alpha()
+        return WeaponInfo(WeaponType.SWORD, 80, 10, 'sword', direction_surfaces, audio, image)
+
 
     def update(self):
         self.display()

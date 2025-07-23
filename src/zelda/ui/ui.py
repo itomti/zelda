@@ -47,7 +47,7 @@ class UserInterface:
 
     def weapon_overlay(self, player: Player) -> None:
         bg_rect = self.selection_box(10, 600, player)
-        weapon_surface: pygame.surface.Surface = player.player_info.weapon_data[player.player_info.weapon_index]['surfaces']['full']
+        weapon_surface: pygame.surface.Surface = player.player_info.weapon_data[player.player_info.weapon_index].image
         weapon_rect = weapon_surface.get_rect(center=bg_rect.center)
         self.display_surface.blit(weapon_surface, weapon_rect)
 
