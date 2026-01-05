@@ -4,9 +4,62 @@ import pygame
 import logging
 from zelda.sprite.spell import Spell, SpellInfo
 from zelda.sprite.weapon import Weapon, WeaponInfo
-from zelda.sprite.entity import Entity, AnimationType
-from zelda.utils import Utilities
+from zelda.sprite.entity import Entity
 from zelda.config import Config
+
+
+class PlayerAnimationType(IntEnum):
+    DOWN = 1
+    DOWN_ATTACK = 2
+    DOWN_IDLE = 3
+    LEFT = 4
+    LEFT_ATTACK = 5
+    LEFT_IDLE = 6
+    RIGHT = 7
+    RIGHT_ATTACK = 8
+    RIGHT_IDLE = 9
+    UP = 10
+    UP_ATTACK = 11
+    UP_IDLE = 12
+    IDLE = 13
+    MOVE = 14
+    ATTACK = 15
+
+    def __str__(self):
+        value = ""
+        match self.value:
+            case 1:
+                value = "down"
+            case 2:
+                value = "down_attack"
+            case 3:
+                value = "down_idle"
+            case 4:
+                value = "left"
+            case 5:
+                value = "left_attack"
+            case 6:
+                value = "left_idle"
+            case 7:
+                value = "right"
+            case 8:
+                value = "right_attack"
+            case 9:
+                value = "right_idle"
+            case 10:
+                value = "up"
+            case 11:
+                value = "up_attack"
+            case 12:
+                value = "up_idle"
+            case 13:
+                value = "idle"
+            case 14:
+                value = "move"
+            case 15:
+                value = "attack"
+
+        return value
 
 
 @dataclass
@@ -33,33 +86,37 @@ class PlayerInfo:
 
 class Player(Entity):
     def __init__(self, player_info: PlayerInfo, position, groups: pygame.sprite.Group, obstacle_sprites: pygame.sprite.Group, clock: pygame.time.Clock, config: Config, image: pygame.Surface):
-        super().__init__(position, 0.15, 6, image, (0, -26), player_info.animations, AnimationType.DOWN, obstacle_sprites, groups)
+        super().__init__(position, 0.15, 6, image, (0, -26), player_info.animations, obstacle_sprites, groups)
         self.config = config
         self.clock = clock
         self.visible_sprites = groups
         self.image = image
         self.player_info = player_info
+        self.status = PlayerAnimationType.DOWN
 
     def input(self) -> None:
         if self.player_info.is_attacking:
             return
+
         keys = pygame.key.get_pressed()
+        pygame.key.set_repeat()
 
         if keys[pygame.K_UP]:
             self.direction.y = -1
-            self.status = AnimationType.UP
+            self.status = PlayerAnimationType.UP
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
-            self.status = AnimationType.DOWN
+            self.status = PlayerAnimationType.DOWN
         else:
             self.direction.y = 0
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
-            self.status = AnimationType.RIGHT
+            self.status = PlayerAnimationType.RIGHT
+        
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
-            self.status = AnimationType.LEFT
+            self.status = PlayerAnimationType.LEFT
         else:
             self.direction.x = 0
 
@@ -108,43 +165,51 @@ class Player(Entity):
 
     def set_status(self) -> None:
         match (self.player_info.is_attacking, self.direction.x, self.direction.y, self.status):
-            case (False, 0, 0, AnimationType.LEFT):
-                self.status = AnimationType.LEFT_IDLE
-            case (False, 0, 0, AnimationType.UP):
-                self.status = AnimationType.UP_IDLE
-            case (False, 0, 0, AnimationType.RIGHT):
-                self.status = AnimationType.RIGHT_IDLE
-            case (False, 0, 0, AnimationType.DOWN):
-                self.status = AnimationType.DOWN_IDLE
-            case (True, -1, 0, AnimationType.LEFT) if AnimationType.LEFT == self.status:
-                self.status = AnimationType.LEFT_ATTACK
-            case (True, 0, -1, AnimationType.UP) if AnimationType.UP == self.status:
-                self.status = AnimationType.UP_ATTACK
-            case (True, 1, 0, AnimationType.RIGHT) if AnimationType.RIGHT == self.status:
-                self.status = AnimationType.RIGHT_ATTACK
-            case (True, 0, 1, AnimationType.DOWN) if AnimationType.DOWN == self.status:
-                self.status = AnimationType.DOWN_ATTACK
-            case (True, _, _, AnimationType.LEFT_IDLE) if AnimationType.LEFT_IDLE == self.status:
-                self.status = AnimationType.LEFT_ATTACK
-            case (True, _, _, AnimationType.UP_IDLE) if AnimationType.UP_IDLE == self.status:
-                self.status = AnimationType.UP_ATTACK
-            case (True, _, _, AnimationType.RIGHT_IDLE) if AnimationType.RIGHT_IDLE == self.status:
-                self.status = AnimationType.RIGHT_ATTACK
-            case (True, _, _, AnimationType.DOWN_IDLE) if AnimationType.DOWN_IDLE == self.status:
-                self.status = AnimationType.DOWN_ATTACK
-            case (False, _, _, AnimationType.LEFT_ATTACK):
-                self.status = AnimationType.LEFT_IDLE
-            case (False, _, _, AnimationType.UP_ATTACK):
-                self.status = AnimationType.UP_IDLE
-            case (False, _, _, AnimationType.RIGHT_ATTACK):
-                self.status = AnimationType.RIGHT_IDLE
-            case (False, _, _, AnimationType.DOWN_ATTACK):
-                self.status = AnimationType.DOWN_IDLE
+            case (False, 0, 0, PlayerAnimationType.LEFT):
+                self.status = PlayerAnimationType.LEFT_IDLE
+            case (False, 0, 0, PlayerAnimationType.UP):
+                self.status = PlayerAnimationType.UP_IDLE
+            case (False, 0, 0, PlayerAnimationType.RIGHT):
+                self.status = PlayerAnimationType.RIGHT_IDLE
+            case (False, 0, 0, PlayerAnimationType.DOWN):
+                self.status = PlayerAnimationType.DOWN_IDLE
+            case (True, -1, 0, PlayerAnimationType.LEFT) if PlayerAnimationType.LEFT == self.status:
+                self.status = PlayerAnimationType.LEFT_ATTACK
+            case (True, 0, -1, PlayerAnimationType.UP) if PlayerAnimationType.UP == self.status:
+                self.status = PlayerAnimationType.UP_ATTACK
+            case (True, 1, 0, PlayerAnimationType.RIGHT) if PlayerAnimationType.RIGHT == self.status:
+                self.status = PlayerAnimationType.RIGHT_ATTACK
+            case (True, 0, 1, PlayerAnimationType.DOWN) if PlayerAnimationType.DOWN == self.status:
+                self.status = PlayerAnimationType.DOWN_ATTACK
+            case (True, _, _, PlayerAnimationType.LEFT_IDLE) if PlayerAnimationType.LEFT_IDLE == self.status:
+                self.status = PlayerAnimationType.LEFT_ATTACK
+            case (True, _, _, PlayerAnimationType.UP_IDLE) if PlayerAnimationType.UP_IDLE == self.status:
+                self.status = PlayerAnimationType.UP_ATTACK
+            case (True, _, _, PlayerAnimationType.RIGHT_IDLE) if PlayerAnimationType.RIGHT_IDLE == self.status:
+                self.status = PlayerAnimationType.RIGHT_ATTACK
+            case (True, _, _, PlayerAnimationType.DOWN_IDLE) if PlayerAnimationType.DOWN_IDLE == self.status:
+                self.status = PlayerAnimationType.DOWN_ATTACK
+            case (False, _, _, PlayerAnimationType.LEFT_ATTACK):
+                self.status = PlayerAnimationType.LEFT_IDLE
+            case (False, _, _, PlayerAnimationType.UP_ATTACK):
+                self.status = PlayerAnimationType.UP_IDLE
+            case (False, _, _, PlayerAnimationType.RIGHT_ATTACK):
+                self.status = PlayerAnimationType.RIGHT_IDLE
+            case (False, _, _, PlayerAnimationType.DOWN_ATTACK):
+                self.status = PlayerAnimationType.DOWN_IDLE
 
         if self.player_info.is_attacking:
             self.direction.x = 0
             self.direction.y = 0
 
+    def animate(self) -> None:
+        animation = self.animations[str(self.status)]
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+
+        self.image: pygame.surface.Surface = animation[int(self.frame_index)]
+        self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def reset_is_attacking(self) -> None:
         if not self.player_info.is_attacking:

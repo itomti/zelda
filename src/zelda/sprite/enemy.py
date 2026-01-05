@@ -1,8 +1,25 @@
+from enum import IntEnum
 from dataclasses import dataclass
 import random
-import logging
 import pygame
-from zelda.sprite.entity import Entity, AnimationType
+from zelda.sprite.entity import Entity
+
+class EnemyAnimationType(IntEnum):
+    IDLE = 1
+    MOVE = 2
+    ATTACK = 3
+
+    def __str__(self):
+        value = ""
+        match self.value:
+            case 1:
+                value = "idle"
+            case 2:
+                value = "move"
+            case 3:
+                value = "attack"
+
+        return value
 
 @dataclass
 class EnemyInfo:
@@ -17,11 +34,11 @@ class EnemyInfo:
 
 class Enemy(Entity):
     def __init__(self, position: tuple, enemy_info: EnemyInfo, obstacles, sprites):
-        super().__init__(position, 0.15, 1.5, enemy_info.image, (0, -26), enemy_info.animations, AnimationType.IDLE, obstacles, sprites)
+        super().__init__(position, 0.15, 1.5, enemy_info.image, (0, -26), enemy_info.animations, obstacles, sprites)
         self.info = enemy_info
         self.image = enemy_info.image
         self.visible_sprites = sprites
-        self.status = AnimationType.IDLE
+        self.status = EnemyAnimationType.IDLE
         self.move_cooldown = 5000
         self.move_time = pygame.time.get_ticks()
         self.is_moving = False
@@ -33,6 +50,15 @@ class Enemy(Entity):
         self.animate()
         self.reset_moving()
         self.move()
+
+    def animate(self) -> None:
+        animation = self.animations[str(self.status)]
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+
+        self.image: pygame.surface.Surface = animation[int(self.frame_index)]
+        self.rect = self.image.get_rect(center=self.hit_box.center)
 
 
     def reset_moving(self) -> None:
@@ -53,7 +79,7 @@ class Enemy(Entity):
             return
 
         self.times_to_move = random.randint(64, 128)
-        self.status = AnimationType.MOVE
+        self.status = EnemyAnimationType.MOVE
         self.move_time = pygame.time.get_ticks()
         self.pick_direction()
         self.can_move = False
